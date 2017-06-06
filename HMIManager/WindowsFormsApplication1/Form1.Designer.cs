@@ -38,7 +38,6 @@
             this.label2 = new System.Windows.Forms.Label();
             this.lblError = new System.Windows.Forms.Label();
             this.btnStartAutoRead = new System.Windows.Forms.Button();
-            this.label3 = new System.Windows.Forms.Label();
             timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
@@ -125,21 +124,11 @@
             this.btnStartAutoRead.UseVisualStyleBackColor = false;
             this.btnStartAutoRead.Click += new System.EventHandler(this.btnStartAutoRead_Click);
             // 
-            // label3
-            // 
-            this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(338, 234);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(35, 13);
-            this.label3.TabIndex = 10;
-            this.label3.Text = "label3";
-            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(416, 327);
-            this.Controls.Add(this.label3);
             this.Controls.Add(this.btnStartAutoRead);
             this.Controls.Add(this.lblError);
             this.Controls.Add(this.label2);
@@ -167,7 +156,6 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblError;
         private System.Windows.Forms.Button btnStartAutoRead;
-        private System.Windows.Forms.Label label3;
     }
 }
 
