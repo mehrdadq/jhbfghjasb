@@ -38,8 +38,15 @@
             this.label2 = new System.Windows.Forms.Label();
             this.lblError = new System.Windows.Forms.Label();
             this.btnStartAutoRead = new System.Windows.Forms.Button();
+            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
+            // 
+            // timer1
+            // 
+            timer1.Enabled = true;
+            timer1.Interval = 1000;
+            timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // btnReadManual
             // 
@@ -69,12 +76,6 @@
             this.listBox1.Name = "listBox1";
             this.listBox1.Size = new System.Drawing.Size(108, 134);
             this.listBox1.TabIndex = 4;
-            // 
-            // timer1
-            // 
-            timer1.Enabled = true;
-            timer1.Interval = 1000;
-            timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // label1
             // 
@@ -124,11 +125,20 @@
             this.btnStartAutoRead.UseVisualStyleBackColor = false;
             this.btnStartAutoRead.Click += new System.EventHandler(this.btnStartAutoRead_Click);
             // 
+            // statusStrip1
+            // 
+            this.statusStrip1.Location = new System.Drawing.Point(0, 305);
+            this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Size = new System.Drawing.Size(416, 22);
+            this.statusStrip1.TabIndex = 10;
+            this.statusStrip1.Text = "statusStrip1";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(416, 327);
+            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.btnStartAutoRead);
             this.Controls.Add(this.lblError);
             this.Controls.Add(this.label2);
@@ -156,6 +166,7 @@
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label lblError;
         private System.Windows.Forms.Button btnStartAutoRead;
+        private System.Windows.Forms.StatusStrip statusStrip1;
     }
 }
 
