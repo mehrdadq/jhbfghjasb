@@ -176,22 +176,38 @@ namespace testpanel
 
 
                         SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
-                        SqlCommand command = new SqlCommand("select ID from Part where PartCode='" + "35wr66" + "'", connection);
+                        SqlCommand command = new SqlCommand("select ID from Part where PartCode='" + productcodeHMI + "'", connection);
                         connection.Open();
                         long ID = (long)command.ExecuteScalar();
+                        int status = 0; //جواب سرور دیتابیس
+                        if (ID==0)
+                        {
+                            ID = 10011;
+                            status = 2;
+                        }
+
                         string Creator = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
                         string modifier = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
 
                         command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES ("+(long) Order_numberHMI + "," + ID + "," +"10006"+ ","+ true + "," + true + "," + NetWeightHMI + "," + true + "," + Creator + "," + Date + "," + modifier + "," + Date + ")", connection);
                         connection.Open();
-                        command.ExecuteNonQuery();
+                        int Result=command.ExecuteNonQuery();
+                        if(Result!=0 & status==0)
+                        {
+                            status = 1;
+                        }
+                        else if(status==0)
+                        {
+                            status = 0;
+                        }
+
                         /*Reply From SQL Sever
                         Status=0 Unable to Saved to SQL Server
                         Status=1 Save to SQL 
                         Status=2 Error in Data*/
 
-                        int Status = 1;//جواب سرور
-                        svimaster.WriteSingleRegister(113, Status);
+                        
+                        svimaster.WriteSingleRegister(113, status);
                         lblError.Text = "  Product =" + productcodeHMI + "Net Weight=" + NetWeightHMI.ToString();
                         checkbit[0] = false;
 
