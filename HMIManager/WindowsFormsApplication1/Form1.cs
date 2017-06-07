@@ -104,6 +104,7 @@ namespace testpanel
 
                         }
                     }
+
                 }
                 CounterList = 0;
             }
@@ -125,6 +126,85 @@ namespace testpanel
                if (CounterList != 0 & timerActive==true)
                 {
                     ModbusClient svimaster = new ModbusClient(listBox1.Items[CounterList - 1].ToString(), 502);
+                    lblError.Text = "connect " + listBox1.Items[CounterList - 1].ToString();
+                    svimaster.Connect();
+                    int[] Main_ProductCode;
+                    lblError.Text = "connect " + listBox1.Items[CounterList - 1].ToString() + " ok";
+                    bool[] checkbit = svimaster.ReadCoils(0, 1);// Check bit send from HMI
+                    //Read Data From HMI
+                    if (checkbit[0] == true)
+                    {
+
+                        int[] Main_Product_Code = svimaster.ReadHoldingRegisters(2, 12);
+                        int[] Weight = svimaster.ReadHoldingRegisters(105, 2);
+                        int[] Datee = svimaster.ReadHoldingRegisters(101, 2);
+                        int[] Timee = svimaster.ReadHoldingRegisters(103, 2);
+                        int[] Oerator_num = svimaster.ReadHoldingRegisters(111, 1);
+
+                        ///1 محصول
+                        ///2-50 ضایعات
+                        ///51-100 توقف
+                        int[] Kind = svimaster.ReadHoldingRegisters(112, 1);//نوع محصول
+
+                        ///کد نمونه
+                        int[] Samplee = svimaster.ReadHoldingRegisters(109, 2);//نمونه
+
+                        ///کد سفارش
+                        int[] Order_numberr = svimaster.ReadHoldingRegisters(107, 2);
+
+                        ///کد محصول
+                        int[] Product_Code = svimaster.ReadHoldingRegisters(19, 12);
+
+                        
+                        ////در صورتی که ماکزیمم آدرس استفاده شده با ماکزیمم آدرس ارسال شده برابری کند 
+                        ////یعنی دستگاه اطلاعاتی برای ارسال ندارد
+
+                        int[] Max_Address = svimaster.ReadHoldingRegisters(99, 1);//ماکزیمم آدرس استفاده شده
+                        int[] Max_send = svimaster.ReadHoldingRegisters(100, 1);//ماکزیمم آدرس ارسال شده
+
+
+
+                        float NetWeightHMI = ModbusClient.ConvertRegistersToFloat(Weight);//وزن 
+                        float SampleHMI = ModbusClient.ConvertRegistersToFloat(Samplee);//نمونه
+                        double DateHMI = ModbusClient.ConvertRegistersToDouble(Datee);//تاریخ
+                        double TimeHMI = ModbusClient.ConvertRegistersToDouble(Timee);//ساعت
+                        string productcodeHMI = ModbusClient.ConvertRegistersToString(Product_Code, 0, 12);//کد محصول
+                        float Order_numberHMI = ModbusClient.ConvertRegistersToFloat(Order_numberr);//شماره سفارش
+
+                        DateTime Date = Convert.ToDateTime("20" + DateHMI.ToString().Substring(0, 2) + "/" + DateHMI.ToString().Substring(2, 2) + "/" + DateHMI.ToString().Substring(4, 2) + " " + TimeHMI.ToString().Substring(2, 2) + ":" + TimeHMI.ToString().Substring(4, 2) + ":" + TimeHMI.ToString().Substring(6, 2));
+
+
+
+                        SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                        SqlCommand command = new SqlCommand("select ID from Part where PartCode='" + "35wr66" + "'", connection);
+                        connection.Open();
+                        long ID = (long)command.ExecuteScalar();
+                        string Creator = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
+                        string modifier = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
+
+                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES ("+(long) Order_numberHMI + "," + ID + "," +"10006"+ ","+ true + "," + true + "," + NetWeightHMI + "," + true + "," + Creator + "," + Date + "," + modifier + "," + Date + ")", connection);
+                        connection.Open();
+                        command.ExecuteNonQuery();
+                        /*Reply From SQL Sever
+                        Status=0 Unable to Saved to SQL Server
+                        Status=1 Save to SQL 
+                        Status=2 Error in Data*/
+
+                        int Status = 1;//جواب سرور
+                        svimaster.WriteSingleRegister(113, Status);
+                        lblError.Text = "  Product =" + productcodeHMI + "Net Weight=" + NetWeightHMI.ToString();
+                        checkbit[0] = false;
+
+                    }
+                    // Write to Panels
+                    int Remain_Product = 100;//محصول باقیمانده
+                    svimaster.WriteSingleRegister(114, Remain_Product);
+                    float Main_order = 1;//شماره سفارش از سروربه پنل
+                    int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
+                    svimaster.WriteMultipleRegisters(0, floatreg);
+                    string Main_prod_code = "uyuy";//کد کالا از سرور به پنل
+                    Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
+                    svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
                     lblError.Text = "Read Device " + listBox1.Items[CounterList - 1].ToString();
                     CounterList = CounterList - 1;
                 }
@@ -141,6 +221,7 @@ namespace testpanel
         {
             try
             {
+               
                 using (SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456"))
                 using (SqlCommand command = new SqlCommand("select * from Devices", connection))
                 {
@@ -190,6 +271,14 @@ namespace testpanel
         private void button1_Click_1(object sender, EventArgs e)
         {
 
+        }
+
+        private void button1_Click_2(object sender, EventArgs e)
+        {
+            SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+            SqlCommand command = new SqlCommand("select ID from Part where PartCode='" + "35wr66" + "'", connection);
+            connection.Open();
+            long ID = (long)command.ExecuteScalar();
         }
     }
 }

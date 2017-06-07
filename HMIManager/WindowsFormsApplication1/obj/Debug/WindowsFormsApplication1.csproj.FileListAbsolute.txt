@@ -38,3 +38,9 @@ C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\ob
 C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
 D:\Towzin Work Version 2\HMI Manager GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe
 D:\Towzin Work Version 2\HMI Manager GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.pdb
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.pdb
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csprojResolveAssemblyReference.cache
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\testpanel.Form1.resources
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
