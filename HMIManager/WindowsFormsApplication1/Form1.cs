@@ -1,4 +1,5 @@
 ﻿using System;
+
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -9,12 +10,15 @@ using System.Windows.Forms;
 using EasyModbus;
 using System.Data.SqlClient;
 using System.Threading;
+using System.Net.NetworkInformation;
 
 namespace testpanel
 {
     public partial class Form1 : Form
     {
+        /// شمارنده لیست باکس ای پی ها
         int CounterList = 0;
+        /// برای فعال یا غیر فعال کردن تایمر
         bool timerActive = false;
         public Form1()
         {
@@ -46,8 +50,8 @@ namespace testpanel
                         int[] Samplee = svimaster.ReadHoldingRegisters(109, 2);//نمونه
                         int[] Order_numberr = svimaster.ReadHoldingRegisters(107, 2);
                         int[] Product_Code = svimaster.ReadHoldingRegisters(19, 12);
-                        int[] Max_Address = svimaster.ReadHoldingRegisters(99, 1);//ماکزیمم آدرس استفاده شده
-                        int[] Max_send = svimaster.ReadHoldingRegisters(100, 1);//ماکزیمم آدرس ارسال شده
+                       // int[] Max_Address = svimaster.ReadHoldingRegisters(99, 1);//ماکزیمم آدرس استفاده شده
+                        //int[] Max_send = svimaster.ReadHoldingRegisters(100, 1);//ماکزیمم آدرس ارسال شده
                         float NetWeightHMI = ModbusClient.ConvertRegistersToFloat(Weight);//وزن 
                         float SampleHMI = ModbusClient.ConvertRegistersToFloat(Samplee);//نمونه
                         double DateHMI = ModbusClient.ConvertRegistersToDouble(Datee);//تاریخ
@@ -87,6 +91,7 @@ namespace testpanel
             }
         }
 
+        ///لود کردن ای پی ها به صورت دستی
         private void button2_Click(object sender, EventArgs e)
         {
             try
@@ -104,7 +109,7 @@ namespace testpanel
 
                         }
                     }
-
+                    
                 }
                 CounterList = 0;
             }
@@ -114,19 +119,33 @@ namespace testpanel
             }
         }
 
+        ///تایمر مربوط به خواندن هر دستگاه
         private void timer1_Tick(object sender, EventArgs e)
         {
-            
+           
+            try
+            { 
+                 /// مربوط به الگوریتم خواندن کلیه ای پی ها از لیست 
             if (listBox1.Items.Count != 0 &  CounterList==0)
             {
                 CounterList = listBox1.Items.Count;
             }
-            try
-            {
+            
                if (CounterList != 0 & timerActive==true)
                 {
-                    ModbusClient svimaster = new ModbusClient(listBox1.Items[CounterList - 1].ToString(), 502);
-                    lblError.Text = "connect " + listBox1.Items[CounterList - 1].ToString();
+                   
+
+                    ///کد مر بوط به پینگ کردن ای پی مقصد
+                    Ping p = new Ping();
+                    PingReply r;
+                    string s;
+                     s = listBox1.Items[CounterList - 1].ToString();
+                     r = p.Send(s);
+                
+                if (r.Status == IPStatus.Success)
+                {
+                        ModbusClient svimaster = new ModbusClient(listBox1.Items[CounterList - 1].ToString(), 502);
+                        lblError.Text = "connect " + listBox1.Items[CounterList - 1].ToString();
                     svimaster.Connect();
                     int[] Main_ProductCode;
                     lblError.Text = "connect " + listBox1.Items[CounterList - 1].ToString() + " ok";
@@ -155,7 +174,7 @@ namespace testpanel
                         ///کد محصول
                         int[] Product_Code = svimaster.ReadHoldingRegisters(19, 12);
 
-                        
+
                         ////در صورتی که ماکزیمم آدرس استفاده شده با ماکزیمم آدرس ارسال شده برابری کند 
                         ////یعنی دستگاه اطلاعاتی برای ارسال ندارد
 
@@ -170,33 +189,69 @@ namespace testpanel
                         double TimeHMI = ModbusClient.ConvertRegistersToDouble(Timee);//ساعت
                         string productcodeHMI = ModbusClient.ConvertRegistersToString(Product_Code, 0, 12);//کد محصول
                         float Order_numberHMI = ModbusClient.ConvertRegistersToFloat(Order_numberr);//شماره سفارش
+                        DateTime DateFromHMI;
 
-                        DateTime Date = Convert.ToDateTime("20" + DateHMI.ToString().Substring(0, 2) + "/" + DateHMI.ToString().Substring(2, 2) + "/" + DateHMI.ToString().Substring(4, 2) + " " + TimeHMI.ToString().Substring(2, 2) + ":" + TimeHMI.ToString().Substring(4, 2) + ":" + TimeHMI.ToString().Substring(6, 2));
 
+                        if (DateHMI > 999999)
+                        {
+                            DateFromHMI= Convert.ToDateTime("20" + DateHMI.ToString().Substring(1, 2) + "-" + DateHMI.ToString().Substring(3, 2) + "-" + DateHMI.ToString().Substring(5, 2) + " " + TimeHMI.ToString().Substring(2, 2) + ":" + TimeHMI.ToString().Substring(4, 2) + ":" + TimeHMI.ToString().Substring(6, 2));
+                        }
+                        else
+                        {
+                            DateFromHMI = Convert.ToDateTime("20" + DateHMI.ToString().Substring(0, 2) + "-" + DateHMI.ToString().Substring(2, 2) + "-" + DateHMI.ToString().Substring(4, 2) + " " + TimeHMI.ToString().Substring(2, 2) + ":" + TimeHMI.ToString().Substring(4, 2) + ":" + TimeHMI.ToString().Substring(6, 2));
+                        }
+
+                        
+                        int temp=productcodeHMI.IndexOf("\0");
+                        productcodeHMI = productcodeHMI.Substring(0, temp);
+                             
+                        if (productcodeHMI == "\0\0\0\0\0\0\0\0\0\0\0\0")
+                        {
+                            productcodeHMI = "99999";
+                        }
 
 
                         SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
                         SqlCommand command = new SqlCommand("select ID from Part where PartCode='" + productcodeHMI + "'", connection);
                         connection.Open();
-                        long ID = (long)command.ExecuteScalar();
-                        int status = 0; //جواب سرور دیتابیس
-                        if (ID==0)
+                        var varPartID = command.ExecuteScalar();
+                        long PartID=0;
+                        if (varPartID!=null)
                         {
-                            ID = 10011;
+                             PartID = (long)varPartID;
+                        }
+                        else
+                        {
+                            PartID = 10011;
+                        }
+
+                        int status = 0; //جواب سرور دیتابیس
+                        if (PartID == 0)
+                        {
+                            PartID = 10011;
                             status = 2;
                         }
+
+
+                        if (Order_numberHMI == 0)
+                        {
+                            Order_numberHMI = 99999;
+                            status = 2;
+                        }
+
 
                         string Creator = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
                         string modifier = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
 
-                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES ("+(long) Order_numberHMI + "," + ID + "," +"10006"+ ","+ true + "," + true + "," + NetWeightHMI + "," + true + "," + Creator + "," + Date + "," + modifier + "," + Date + ")", connection);
-                        connection.Open();
-                        int Result=command.ExecuteNonQuery();
-                        if(Result!=0 & status==0)
+                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI+ "','" + modifier + "','" + DateFromHMI + "')", connection);
+                        
+                        int Result = command.ExecuteNonQuery();
+
+                        if (Result != 0 & status == 0)
                         {
                             status = 1;
                         }
-                        else if(status==0)
+                        else if (status == 0)
                         {
                             status = 0;
                         }
@@ -206,23 +261,25 @@ namespace testpanel
                         Status=1 Save to SQL 
                         Status=2 Error in Data*/
 
-                        
+
                         svimaster.WriteSingleRegister(113, status);
                         lblError.Text = "  Product =" + productcodeHMI + "Net Weight=" + NetWeightHMI.ToString();
                         checkbit[0] = false;
 
                     }
                     // Write to Panels
-                    int Remain_Product = 100;//محصول باقیمانده
-                    svimaster.WriteSingleRegister(114, Remain_Product);
-                    float Main_order = 1;//شماره سفارش از سروربه پنل
-                    int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
-                    svimaster.WriteMultipleRegisters(0, floatreg);
-                    string Main_prod_code = "uyuy";//کد کالا از سرور به پنل
-                    Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
-                    svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
+                  //  int Remain_Product = 100;//محصول باقیمانده
+                   // svimaster.WriteSingleRegister(114, Remain_Product);
+                    // float Main_order = 1;//شماره سفارش از سروربه پنل
+                    //int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
+                    //svimaster.WriteMultipleRegisters(0, floatreg);
+                    //string Main_prod_code = "uyuy";//کد کالا از سرور به پنل
+                    // Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
+                    // svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
                     lblError.Text = "Read Device " + listBox1.Items[CounterList - 1].ToString();
+                        ///مربوط به الگوریتم خواندن کلیه ای پی ها از لیست
                     CounterList = CounterList - 1;
+                }
                 }
             }
                 
