@@ -32,7 +32,7 @@
             System.Windows.Forms.Timer timer1;
             this.btnReadManual = new System.Windows.Forms.Button();
             this.btnLoadDevice = new System.Windows.Forms.Button();
-            this.listBox1 = new System.Windows.Forms.ListBox();
+            this.ListIP = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
             this.txtIP = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -68,13 +68,13 @@
             this.btnLoadDevice.UseVisualStyleBackColor = true;
             this.btnLoadDevice.Click += new System.EventHandler(this.button2_Click);
             // 
-            // listBox1
+            // ListIP
             // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.Location = new System.Drawing.Point(34, 102);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(108, 134);
-            this.listBox1.TabIndex = 4;
+            this.ListIP.FormattingEnabled = true;
+            this.ListIP.Location = new System.Drawing.Point(34, 102);
+            this.ListIP.Name = "ListIP";
+            this.ListIP.Size = new System.Drawing.Size(108, 134);
+            this.ListIP.TabIndex = 4;
             // 
             // label1
             // 
@@ -134,7 +134,7 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtIP);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.listBox1);
+            this.Controls.Add(this.ListIP);
             this.Controls.Add(this.btnLoadDevice);
             this.Controls.Add(this.btnReadManual);
             this.Margin = new System.Windows.Forms.Padding(2);
@@ -150,7 +150,7 @@
 
         private System.Windows.Forms.Button btnReadManual;
         private System.Windows.Forms.Button btnLoadDevice;
-        private System.Windows.Forms.ListBox listBox1;
+        private System.Windows.Forms.ListBox ListIP;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.TextBox txtIP;
         private System.Windows.Forms.Label label2;
