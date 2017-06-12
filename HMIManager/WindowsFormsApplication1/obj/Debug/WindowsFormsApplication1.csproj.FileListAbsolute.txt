@@ -44,3 +44,7 @@ C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\ob
 C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\testpanel.Form1.resources
 C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.Properties.Resources.resources
 C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.csproj.GenerateResource.Cache
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.exe.manifest
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.application
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe.manifest
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.application
