@@ -33,10 +33,10 @@ namespace testpanel
                 {
                     
                     ModbusClient svimaster = new ModbusClient(txtIP.Text, 502);
-                    lblError.Text = "connect " + txtIP.Text;
+                    lblStatus.Text = "connect " + txtIP.Text;
                     svimaster.Connect();
                     int[] Main_ProductCode;
-                    lblError.Text = "connect "+ txtIP.Text+" ok";
+                    lblStatus.Text = "connect "+ txtIP.Text+" ok";
                     bool[] checkbit = svimaster.ReadCoils(0, 1);// Check bit send from HMI
                     //Read Data From HMI
                     if (checkbit[0] == true)
@@ -66,7 +66,7 @@ namespace testpanel
                        
                         int Status = 1;//جواب سرور
                         svimaster.WriteSingleRegister(113, Status);
-                        lblError.Text = "  Product =" + productcodeHMI + "Net Weight=" + NetWeightHMI.ToString();
+                        lblStatus.Text = "  Product =" + productcodeHMI + "Net Weight=" + NetWeightHMI.ToString();
                         checkbit[0] = false;
 
                     }
@@ -82,12 +82,12 @@ namespace testpanel
                 }
                 else
                 {
-                    lblError.Text = "Please Fill IP Address";
+                    lblStatus.Text = "Please Fill IP Address";
                 }
             }
             catch
             {
-                lblError.Text = "Error Read Data From Device";
+                lblStatus.Text = "Error Read Data From Device";
             }
         }
 
@@ -115,7 +115,7 @@ namespace testpanel
             }
             catch
             {
-                lblError.Text = "Error Read Device From Database";
+                lblStatus.Text = "Error Read Device From Database";
             }
         }
 
@@ -127,31 +127,31 @@ namespace testpanel
                 SqlConnection connection;
                 SqlCommand command;
                 /// مربوط به الگوریتم خواندن کلیه ای پی ها از لیست 
-                if (ListIP.Items.Count != 0 &  CounterList==0)
-            {
-                CounterList = ListIP.Items.Count;
-            }
+                if (ListIP.Items.Count != 0 & CounterList == 0)
+                {
+                    CounterList = ListIP.Items.Count;
+                }           
             
                if (CounterList != 0 & timerActive==true)
                 {
-                   
 
-                    ///کد مر بوط به پینگ کردن ای پی مقصد
-                    Ping p = new Ping();
-                    PingReply r;
-                    string s;
-                     s = ListIP.Items[CounterList - 1].ToString();
-                     r = p.Send(s);
-                
+            ///کد مر بوط به پینگ کردن ای پی مقصد
+                        Ping p = new Ping();
+                        PingReply r;
+                        string s;
+                        s = ListIP.Items[CounterList - 1].ToString();
+                        r = p.Send(s);
+               
+
                 if (r.Status == IPStatus.Success)
                 {
                         ModbusClient svimaster = new ModbusClient(ListIP.Items[CounterList - 1].ToString(), 502);
-                        lblError.Text = "connect " + ListIP.Items[CounterList - 1].ToString();
+                        lblStatus.Text = "connect " + ListIP.Items[CounterList - 1].ToString();
                         svimaster.ConnectionTimeout = 100;
                         svimaster.Connect();
                         
                     int[] Main_ProductCode;
-                    lblError.Text = "connect " + ListIP.Items[CounterList - 1].ToString() + " ok";
+                   // lblStatus.Text = "connect " + ListIP.Items[CounterList - 1].ToString() + " ok";
                     bool[] checkbit = svimaster.ReadCoils(0, 1);// Check bit send from HMI
                     //Read Data From HMI
                     if (checkbit[0] == true)
@@ -322,7 +322,7 @@ namespace testpanel
 
 
                         svimaster.WriteSingleRegister(113, status);
-                        lblError.Text = "  Product =" + productcodeHMI + "Net Weight=" + NetWeightHMI.ToString();
+                      
                         checkbit[0] = false;
 
                     }
@@ -330,33 +330,75 @@ namespace testpanel
                         //  int Remain_Product = 100;//محصول باقیمانده
                         // svimaster.WriteSingleRegister(114, Remain_Product);
 
-
-                       connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
-                        command = new SqlCommand("SELECT ProductionLineID FROM Devices where IP='" + ListIP.Items[CounterList - 1].ToString()  + "' and SendOrderCode=1", connection);
-                        connection.Close();
-                        connection.Open();
-                        var VarProductionLineID = command.ExecuteScalar();
-
-                        long ProductionLineID = (long)VarProductionLineID;
-
-                        connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
-                            command = new SqlCommand("SELECT OrderCode FROM [Order] where ProductionLineID=" + ProductionLineID + " and OrderStatusID=2", connection);
+                        int[] SendOrderCode= svimaster.ReadHoldingRegisters(5, 1);//کد سفارش به صورت دستی است یا اتواتیک 0=اتوماتیک
+                        if (SendOrderCode[0] == 0)
+                        {
+                            connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                            command = new SqlCommand("SELECT ProductionLineID FROM Devices where IP='" + ListIP.Items[CounterList - 1].ToString() + "' and SendOrderCode=1", connection);
                             connection.Close();
                             connection.Open();
-                            var  VarOrderCode= command.ExecuteScalar();
+                            var VarProductionLineID = command.ExecuteScalar();
 
-                            long OrderCode = (long)VarOrderCode;
+                            long ProductionLineID = (long)VarProductionLineID;
+                            if (ProductionLineID != 0)
+                            {
+                                connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                                command = new SqlCommand("SELECT OrderCode FROM [Order] where ProductionLineID=" + ProductionLineID + " and OrderStatusID=2", connection);
+                                connection.Close();
+                                connection.Open();
+                                var VarOrderCode = command.ExecuteScalar();
 
-                        
-                     float Main_order = OrderCode;//شماره سفارش از سروربه پنل
-                    int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
-                    svimaster.WriteMultipleRegisters(0, floatreg);
+                                long OrderCode = (long)VarOrderCode;
 
-                    
-                    //string Main_prod_code = "uyuy";//کد کالا از سرور به پنل
-                    // Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
-                    // svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
-                    lblError.Text = "Read Device " + ListIP.Items[CounterList - 1].ToString();
+
+                                float Main_order = OrderCode;//شماره سفارش از سروربه پنل
+                                int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
+                                svimaster.WriteMultipleRegisters(0, floatreg);
+                            }
+                        }
+
+                        int[] ChangeOrderCode = svimaster.ReadHoldingRegisters(4, 1);//تغییری در کد سفارش اتفاق افتاده است یا خیر : خیر=0
+                        if (ChangeOrderCode[0] == 1)
+                        {
+                            int Address = 199;
+                            svimaster.WriteMultipleRegisters(199, ModbusClient.ConvertStringToRegisters(""));
+                            svimaster.WriteMultipleRegisters(212, ModbusClient.ConvertStringToRegisters(""));
+                            svimaster.WriteMultipleRegisters(225, ModbusClient.ConvertStringToRegisters(""));
+                            svimaster.WriteMultipleRegisters(238, ModbusClient.ConvertStringToRegisters(""));
+                            svimaster.WriteMultipleRegisters(251, ModbusClient.ConvertStringToRegisters(""));
+                            svimaster.WriteMultipleRegisters(264, ModbusClient.ConvertStringToRegisters(""));
+                            using (connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456"))
+                            using ( command = new SqlCommand("select * from OrderPart", connection))
+                            {
+                                connection.Close();
+                                connection.Open();
+                                
+                                using (SqlDataReader reader = command.ExecuteReader())
+                                {
+                                    while (reader.Read())
+                                    {
+                                        connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                                        command = new SqlCommand("SELECT PartCode FROM Part where ID=" + reader["PartID"].ToString() , connection);
+                                        connection.Close();
+                                        connection.Open();
+                                        var VarPartCode = command.ExecuteScalar();
+
+                                        string PartCode = (string)VarPartCode;
+                                       
+                                       
+                                        string Main_prod_code = PartCode;//کد کالا از سرور به پنل
+                                         Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
+                                        svimaster.WriteMultipleRegisters(Address, Main_ProductCode);
+                                        Address=Address+13;
+
+                                    }
+                                }
+                            }
+                        }
+                            //string Main_prod_code = "uyuy";//کد کالا از سرور به پنل
+                            // Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
+                            // svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
+                            lblStatus.Text = "Read Device " + ListIP.Items[CounterList - 1].ToString();
                         ///مربوط به الگوریتم خواندن کلیه ای پی ها از لیست
                     
                 }
@@ -364,9 +406,10 @@ namespace testpanel
                 }
            }
                 
-            catch
+            catch(Exception ex)
             {
-                lblError.Text = "Error Read Data From Device";    
+                ListErrors.Items.Add(ex.Message);
+               
             }
 
         }
@@ -394,7 +437,7 @@ namespace testpanel
             }
             catch
             {
-                lblError.Text = "Error Read Device From Database";
+                lblStatus.Text = "Error Read Device From Database";
             }
         }
 
@@ -413,7 +456,7 @@ namespace testpanel
                 timerActive = false;
                 btnStartAutoRead.BackColor = Color.White;
                 btnStartAutoRead.Text = "Start";
-                lblError.Text = "";
+                lblStatus.Text = "";
                  
             }
         }
