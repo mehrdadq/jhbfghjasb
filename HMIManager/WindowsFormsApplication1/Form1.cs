@@ -123,9 +123,11 @@ namespace testpanel
         private void timer1_Tick(object sender, EventArgs e)
         {
             try { 
-             
-                 /// مربوط به الگوریتم خواندن کلیه ای پی ها از لیست 
-            if (ListIP.Items.Count != 0 &  CounterList==0)
+
+                SqlConnection connection;
+                SqlCommand command;
+                /// مربوط به الگوریتم خواندن کلیه ای پی ها از لیست 
+                if (ListIP.Items.Count != 0 &  CounterList==0)
             {
                 CounterList = ListIP.Items.Count;
             }
@@ -213,8 +215,8 @@ namespace testpanel
                         }
 
 
-                            SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
-                        SqlCommand command = new SqlCommand("select ID from Part where PartCode='" + productcodeHMI + "'", connection);
+                            connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                           command = new SqlCommand("select ID from Part where PartCode='" + productcodeHMI + "'", connection);
                         connection.Open();
                         var varPartID = command.ExecuteScalar();
                         long PartID=0;
@@ -324,12 +326,33 @@ namespace testpanel
                         checkbit[0] = false;
 
                     }
-                    // Write to Panels
-                  //  int Remain_Product = 100;//محصول باقیمانده
-                   // svimaster.WriteSingleRegister(114, Remain_Product);
-                    // float Main_order = 1;//شماره سفارش از سروربه پنل
-                    //int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
-                    //svimaster.WriteMultipleRegisters(0, floatreg);
+                        // Write to Panels
+                        //  int Remain_Product = 100;//محصول باقیمانده
+                        // svimaster.WriteSingleRegister(114, Remain_Product);
+
+
+                       connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                        command = new SqlCommand("SELECT ProductionLineID FROM Devices where IP='" + ListIP.Items[CounterList - 1].ToString()  + "' and SendOrderCode=1", connection);
+                        connection.Close();
+                        connection.Open();
+                        var VarProductionLineID = command.ExecuteScalar();
+
+                        long ProductionLineID = (long)VarProductionLineID;
+
+                        connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                            command = new SqlCommand("SELECT OrderCode FROM [Order] where ProductionLineID=" + ProductionLineID + " and OrderStatusID=2", connection);
+                            connection.Close();
+                            connection.Open();
+                            var  VarOrderCode= command.ExecuteScalar();
+
+                            long OrderCode = (long)VarOrderCode;
+
+                        
+                     float Main_order = OrderCode;//شماره سفارش از سروربه پنل
+                    int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
+                    svimaster.WriteMultipleRegisters(0, floatreg);
+
+                    
                     //string Main_prod_code = "uyuy";//کد کالا از سرور به پنل
                     // Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
                     // svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
