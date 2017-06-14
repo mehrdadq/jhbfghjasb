@@ -7,7 +7,7 @@
     <framework targetVersion="4.0" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="WindowsFormsApplication1.exe.manifest" size="3751">
+    <dependentAssembly dependencyType="install" codebase="Application Files\WindowsFormsApplication1_1_0_0_1\WindowsFormsApplication1.exe.manifest" size="3751">
       <assemblyIdentity name="WindowsFormsApplication1.exe" version="1.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>

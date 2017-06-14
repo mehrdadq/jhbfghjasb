@@ -16,6 +16,9 @@ namespace testpanel
 {
     public partial class Form1 : Form
     {
+
+        SqlConnection connection= new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+        SqlCommand command;
         /// شمارنده لیست باکس ای پی ها
         int CounterList = 0;
         /// برای فعال یا غیر فعال کردن تایمر
@@ -96,7 +99,7 @@ namespace testpanel
         {
             try
             {
-                using (SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456"))
+                using (connection)
                 using (SqlCommand command = new SqlCommand("select * from Devices", connection))
                 {
                     connection.Open();
@@ -123,9 +126,9 @@ namespace testpanel
         private void timer1_Tick(object sender, EventArgs e)
         {
             try { 
-
-                SqlConnection connection;
-                SqlCommand command;
+            connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456;MultipleActiveResultSets=true");
+            connection.Close();
+            connection.Open();
                 /// مربوط به الگوریتم خواندن کلیه ای پی ها از لیست 
                 if (ListIP.Items.Count != 0 & CounterList == 0)
                 {
@@ -164,8 +167,8 @@ namespace testpanel
                         int[] Oerator_num = svimaster.ReadHoldingRegisters(111, 1);
 
                         ///1 محصول
-                        ///2-50 ضایعات
-                        ///51-100 توقف
+                        ///2-49 ضایعات
+                        ///50-100 توقف
                         int[] Kind = svimaster.ReadHoldingRegisters(112, 1);//نوع محصول
 
                         ///کد نمونه
@@ -215,9 +218,9 @@ namespace testpanel
                         }
 
 
-                            connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+
                            command = new SqlCommand("select ID from Part where PartCode='" + productcodeHMI + "'", connection);
-                        connection.Open();
+
                         var varPartID = command.ExecuteScalar();
                         long PartID=0;
                         if (varPartID!=null)
@@ -283,10 +286,9 @@ namespace testpanel
                             if (Kind[0] >= 50 & Kind[0] <= 100)
                             {
 
-                                 connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                 
                                  command = new SqlCommand("SELECT ID FROM Stoppages where Description='" + Kind[0] + "'", connection);
-                            connection.Close();
-                            connection.Open();
+                 
                                 var VarStoppagesID = command.ExecuteScalar();
                           
                                 long StoppagesID = (long)VarStoppagesID;
@@ -329,46 +331,45 @@ namespace testpanel
                         // Write to Panels
                         //  int Remain_Product = 100;//محصول باقیمانده
                         // svimaster.WriteSingleRegister(114, Remain_Product);
-
+                        long ProductionLineID = 0;
+                    long OrderCode=0;
                         int[] SendOrderCode= svimaster.ReadHoldingRegisters(5, 1);//کد سفارش به صورت دستی است یا اتواتیک 0=اتوماتیک
                         if (SendOrderCode[0] == 0)
                         {
-                            connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                 
                             command = new SqlCommand("SELECT ProductionLineID FROM Devices where IP='" + ListIP.Items[CounterList - 1].ToString() + "' and SendOrderCode=1", connection);
-                            connection.Close();
-                            connection.Open();
+                 
                             var VarProductionLineID = command.ExecuteScalar();
 
-                            long ProductionLineID = (long)VarProductionLineID;
+                            ProductionLineID = (long)VarProductionLineID;
                             if (ProductionLineID != 0)
                             {
-                                connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+                 
                                 command = new SqlCommand("SELECT OrderCode FROM [Order] where ProductionLineID=" + ProductionLineID + " and OrderStatusID=2", connection);
-                                connection.Close();
-                                connection.Open();
+                 
                                 var VarOrderCode = command.ExecuteScalar();
 
-                                long OrderCode = (long)VarOrderCode;
+                               OrderCode = (long)VarOrderCode;
 
 
                                 float Main_order = OrderCode;//شماره سفارش از سروربه پنل
                                 int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
-                                svimaster.WriteMultipleRegisters(0, floatreg);
+                            svimaster.WriteMultipleRegisters(0, floatreg);
                             }
                         }
 
                         int[] ChangeOrderCode = svimaster.ReadHoldingRegisters(4, 1);//تغییری در کد سفارش اتفاق افتاده است یا خیر : خیر=0
-                        if (ChangeOrderCode[0] == 1)
+                        if (ChangeOrderCode[0] == 0)
                         {
                             int Address = 199;
-                            svimaster.WriteMultipleRegisters(199, ModbusClient.ConvertStringToRegisters(""));
-                            svimaster.WriteMultipleRegisters(212, ModbusClient.ConvertStringToRegisters(""));
-                            svimaster.WriteMultipleRegisters(225, ModbusClient.ConvertStringToRegisters(""));
-                            svimaster.WriteMultipleRegisters(238, ModbusClient.ConvertStringToRegisters(""));
-                            svimaster.WriteMultipleRegisters(251, ModbusClient.ConvertStringToRegisters(""));
-                            svimaster.WriteMultipleRegisters(264, ModbusClient.ConvertStringToRegisters(""));
-                            using (connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456"))
-                            using ( command = new SqlCommand("select * from OrderPart", connection))
+
+                 
+                  
+
+
+
+                            using (connection)
+                            using ( command = new SqlCommand("select * from OrderPart where OrderCodeID=" + OrderCode.ToString() , connection))
                             {
                                 connection.Close();
                                 connection.Open();
@@ -377,10 +378,8 @@ namespace testpanel
                                 {
                                     while (reader.Read())
                                     {
-                                        connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
-                                        command = new SqlCommand("SELECT PartCode FROM Part where ID=" + reader["PartID"].ToString() , connection);
-                                        connection.Close();
-                                        connection.Open();
+                                        
+                                        command = new SqlCommand("SELECT PartCode FROM Part where ID=" + reader["PartID"].ToString(), connection);
                                         var VarPartCode = command.ExecuteScalar();
 
                                         string PartCode = (string)VarPartCode;
@@ -390,7 +389,27 @@ namespace testpanel
                                          Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
                                         svimaster.WriteMultipleRegisters(Address, Main_ProductCode);
                                         Address=Address+13;
-
+                                        
+                                    }
+                                    if(Address==199)
+                                    {
+                                        svimaster.WriteMultipleRegisters(199, ModbusClient.ConvertStringToRegisters(""));
+                                    }
+                                    if (Address == 212)
+                                    {
+                                        svimaster.WriteMultipleRegisters(212, ModbusClient.ConvertStringToRegisters(""));
+                                    }
+                                    if (Address == 225)
+                                    {
+                                        svimaster.WriteMultipleRegisters(225, ModbusClient.ConvertStringToRegisters(""));
+                                    }
+                                    if (Address == 238)
+                                    {
+                                        svimaster.WriteMultipleRegisters(238, ModbusClient.ConvertStringToRegisters(""));
+                                    }
+                                    if (Address == 251)
+                                    {
+                                        svimaster.WriteMultipleRegisters(251, ModbusClient.ConvertStringToRegisters(""));
                                     }
                                 }
                             }
@@ -418,11 +437,12 @@ namespace testpanel
         {
             try
             {
-               
-                using (SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456"))
-                using (SqlCommand command = new SqlCommand("select * from Devices", connection))
+                connection.Close();
+                connection.Open();
+                using (connection )
+                using (command = new SqlCommand("select * from Devices", connection))
                 {
-                    connection.Open();
+                    
                     ListIP.Items.Clear();
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -461,20 +481,11 @@ namespace testpanel
             }
         }
 
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-                    }
-
-        private void button1_Click_1(object sender, EventArgs e)
-        {
-
-        }
-
         private void button1_Click_2(object sender, EventArgs e)
         {
-            SqlConnection connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456");
+            
             SqlCommand command = new SqlCommand("select ID from Part where PartCode='" + "35wr66" + "'", connection);
-            connection.Open();
+            
             long ID = (long)command.ExecuteScalar();
         }
     }
