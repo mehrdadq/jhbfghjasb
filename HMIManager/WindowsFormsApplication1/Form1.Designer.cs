@@ -39,13 +39,18 @@
             this.lblStatus = new System.Windows.Forms.Label();
             this.btnStartAutoRead = new System.Windows.Forms.Button();
             this.ListErrors = new System.Windows.Forms.ListBox();
+            this.lblCorrect = new System.Windows.Forms.Label();
+            this.lblWrong = new System.Windows.Forms.Label();
+            this.lblAvarage = new System.Windows.Forms.Label();
+            this.label3 = new System.Windows.Forms.Label();
+            this.label4 = new System.Windows.Forms.Label();
+            this.label5 = new System.Windows.Forms.Label();
             timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
             // timer1
             // 
             timer1.Enabled = true;
-            timer1.Interval = 3000;
             timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // btnReadManual
@@ -117,7 +122,7 @@
             // 
             this.btnStartAutoRead.BackColor = System.Drawing.SystemColors.Window;
             this.btnStartAutoRead.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.btnStartAutoRead.Location = new System.Drawing.Point(217, 116);
+            this.btnStartAutoRead.Location = new System.Drawing.Point(209, 73);
             this.btnStartAutoRead.Name = "btnStartAutoRead";
             this.btnStartAutoRead.Size = new System.Drawing.Size(114, 78);
             this.btnStartAutoRead.TabIndex = 9;
@@ -133,11 +138,81 @@
             this.ListErrors.Size = new System.Drawing.Size(597, 303);
             this.ListErrors.TabIndex = 10;
             // 
+            // lblCorrect
+            // 
+            this.lblCorrect.AutoSize = true;
+            this.lblCorrect.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.lblCorrect.Location = new System.Drawing.Point(149, 267);
+            this.lblCorrect.Name = "lblCorrect";
+            this.lblCorrect.Size = new System.Drawing.Size(27, 29);
+            this.lblCorrect.TabIndex = 12;
+            this.lblCorrect.Text = "0";
+            this.lblCorrect.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblWrong
+            // 
+            this.lblWrong.AutoSize = true;
+            this.lblWrong.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.lblWrong.Location = new System.Drawing.Point(149, 317);
+            this.lblWrong.Name = "lblWrong";
+            this.lblWrong.Size = new System.Drawing.Size(27, 29);
+            this.lblWrong.TabIndex = 13;
+            this.lblWrong.Text = "0";
+            this.lblWrong.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // lblAvarage
+            // 
+            this.lblAvarage.AutoSize = true;
+            this.lblAvarage.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.lblAvarage.Location = new System.Drawing.Point(149, 366);
+            this.lblAvarage.Name = "lblAvarage";
+            this.lblAvarage.Size = new System.Drawing.Size(48, 29);
+            this.lblAvarage.TabIndex = 14;
+            this.lblAvarage.Text = "0.0";
+            this.lblAvarage.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.label3.Location = new System.Drawing.Point(36, 371);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(107, 18);
+            this.label3.TabIndex = 15;
+            this.label3.Text = "AverageSpeed:";
+            this.label3.Click += new System.EventHandler(this.label3_Click);
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.label4.Location = new System.Drawing.Point(36, 324);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(82, 18);
+            this.label4.TabIndex = 16;
+            this.label4.Text = "Fail Check:";
+            // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.label5.Location = new System.Drawing.Point(36, 274);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(117, 18);
+            this.label5.TabIndex = 17;
+            this.label5.Text = "Success Check:";
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1042, 327);
+            this.ClientSize = new System.Drawing.Size(1042, 413);
+            this.Controls.Add(this.label5);
+            this.Controls.Add(this.label4);
+            this.Controls.Add(this.label3);
+            this.Controls.Add(this.lblAvarage);
+            this.Controls.Add(this.lblWrong);
+            this.Controls.Add(this.lblCorrect);
             this.Controls.Add(this.ListErrors);
             this.Controls.Add(this.btnStartAutoRead);
             this.Controls.Add(this.lblStatus);
@@ -167,6 +242,12 @@
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.Button btnStartAutoRead;
         private System.Windows.Forms.ListBox ListErrors;
+        private System.Windows.Forms.Label lblCorrect;
+        private System.Windows.Forms.Label lblWrong;
+        private System.Windows.Forms.Label lblAvarage;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label label5;
     }
 }
 

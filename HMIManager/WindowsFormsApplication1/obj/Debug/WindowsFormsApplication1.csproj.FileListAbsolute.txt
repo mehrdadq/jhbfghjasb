@@ -48,3 +48,5 @@ C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bi
 C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bin\Debug\WindowsFormsApplication1.application
 C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.exe.manifest
 C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\obj\Debug\WindowsFormsApplication1.application
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bin\Debug\NModbus4.dll
+C:\Towzin V2\Hmi Manger GitHub\jhbfghjasb\HMIManager\WindowsFormsApplication1\bin\Debug\NModbus4.xml
