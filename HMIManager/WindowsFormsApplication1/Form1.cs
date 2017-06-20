@@ -275,8 +275,7 @@ namespace testpanel
                         string Creator = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
                         string modifier = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
 
-                            if (CounterList == CounterListSql)
-                            {
+
                                 if (Kind[0] == 1)
                                 {
                                     command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
@@ -340,10 +339,10 @@ namespace testpanel
                                     }
 
                                 }
-                                CounterListSql = CounterListSql - 1;
+
                                 Rad = Rad + 1;
                                 lblRead.Text = Rad.ToString();
-                            }
+
 
                         /*Reply From SQL Sever
                         Status=0 Unable to Saved to SQL Server
