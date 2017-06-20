@@ -45,6 +45,8 @@
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
+            this.label6 = new System.Windows.Forms.Label();
+            this.lblRead = new System.Windows.Forms.Label();
             timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
@@ -79,7 +81,7 @@
             this.ListIP.FormattingEnabled = true;
             this.ListIP.Location = new System.Drawing.Point(34, 102);
             this.ListIP.Name = "ListIP";
-            this.ListIP.Size = new System.Drawing.Size(108, 134);
+            this.ListIP.Size = new System.Drawing.Size(108, 121);
             this.ListIP.TabIndex = 4;
             // 
             // label1
@@ -142,7 +144,7 @@
             // 
             this.lblCorrect.AutoSize = true;
             this.lblCorrect.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.lblCorrect.Location = new System.Drawing.Point(149, 267);
+            this.lblCorrect.Location = new System.Drawing.Point(149, 276);
             this.lblCorrect.Name = "lblCorrect";
             this.lblCorrect.Size = new System.Drawing.Size(27, 29);
             this.lblCorrect.TabIndex = 12;
@@ -196,17 +198,40 @@
             // 
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
-            this.label5.Location = new System.Drawing.Point(36, 274);
+            this.label5.Location = new System.Drawing.Point(36, 278);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(117, 18);
             this.label5.TabIndex = 17;
             this.label5.Text = "Success Check:";
+            // 
+            // label6
+            // 
+            this.label6.AutoSize = true;
+            this.label6.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.label6.Location = new System.Drawing.Point(36, 236);
+            this.label6.Name = "label6";
+            this.label6.Size = new System.Drawing.Size(109, 18);
+            this.label6.TabIndex = 18;
+            this.label6.Text = "Success Read:";
+            // 
+            // lblRead
+            // 
+            this.lblRead.AutoSize = true;
+            this.lblRead.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(178)));
+            this.lblRead.Location = new System.Drawing.Point(148, 233);
+            this.lblRead.Name = "lblRead";
+            this.lblRead.Size = new System.Drawing.Size(27, 29);
+            this.lblRead.TabIndex = 19;
+            this.lblRead.Text = "0";
+            this.lblRead.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1042, 413);
+            this.Controls.Add(this.lblRead);
+            this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
             this.Controls.Add(this.label3);
@@ -248,6 +273,8 @@
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
+        private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.Label lblRead;
     }
 }
 

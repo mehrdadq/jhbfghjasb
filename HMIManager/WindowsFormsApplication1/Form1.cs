@@ -20,6 +20,7 @@ namespace testpanel
     {
         long Crt=0;
         long Wrg=0;
+        long Rad = 0;
         DateTime startTime;
         
         ModbusClient svimaster = new ModbusClient();
@@ -27,6 +28,7 @@ namespace testpanel
         SqlCommand command;
         /// شمارنده لیست باکس ای پی ها
         int CounterList = 0;
+        int CounterListSql = 0;
         /// برای فعال یا غیر فعال کردن تایمر
         bool timerActive = false;
         public Form1()
@@ -140,6 +142,7 @@ namespace testpanel
             if (ListIP.Items.Count != 0 & CounterList == 0)
             {
                 CounterList = ListIP.Items.Count;
+                    CounterListSql = CounterList;
             }
 
 
@@ -272,72 +275,75 @@ namespace testpanel
                         string Creator = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
                         string modifier = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
 
-
-                        if (Kind[0] == 1)
-                        {
-                            command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
-
-                            int Result = command.ExecuteNonQuery();
-
-                            if (Result != 0 & status == 0)
+                            if (CounterList == CounterListSql)
                             {
-                                status = 1;
+                                if (Kind[0] == 1)
+                                {
+                                    command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+
+                                    int Result = command.ExecuteNonQuery();
+
+                                    if (Result != 0 & status == 0)
+                                    {
+                                        status = 1;
+                                    }
+                                    else if (status == 0)
+                                    {
+                                        status = 0;
+                                    }
+
+                                }
+                                if (Kind[0] >= 2 & Kind[0] <= 49)
+                                {
+                                    command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 1 + "," + NetWeightHMI * (-1) + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+
+                                    int Result = command.ExecuteNonQuery();
+
+                                    if (Result != 0 & status == 0)
+                                    {
+                                        status = 1;
+                                    }
+                                    else if (status == 0)
+                                    {
+                                        status = 0;
+                                    }
+
+                                }
+                                if (Kind[0] >= 50 & Kind[0] <= 100)
+                                {
+
+
+                                    command = new SqlCommand("SELECT ID FROM Stoppages where Description='" + Kind[0] + "'", connection);
+
+                                    var VarStoppagesID = command.ExecuteScalar();
+
+                                    long StoppagesID = (long)VarStoppagesID;
+
+
+                                    if (Kind[0] < 100)
+                                    {
+                                        command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[StartTime],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + Order_numberHMI + "," + "10006" + ",'" + DateFromHMI + "'," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+                                    }
+                                    else
+                                    {
+                                        command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[EndTime],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + Order_numberHMI + "," + "10006" + ",'" + DateFromHMI + "'," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+                                    }
+                                    int Result = command.ExecuteNonQuery();
+
+                                    if (Result != 0 & status == 0)
+                                    {
+                                        status = 1;
+                                    }
+                                    else if (status == 0)
+                                    {
+                                        status = 0;
+                                    }
+
+                                }
+                                CounterListSql = CounterListSql - 1;
+                                Rad = Rad + 1;
+                                lblRead.Text = Rad.ToString();
                             }
-                            else if (status == 0)
-                            {
-                                status = 0;
-                            }
-
-                        }
-                        if (Kind[0] >= 2 & Kind[0] <= 49)
-                        {
-                            command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 1 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
-
-                            int Result = command.ExecuteNonQuery();
-
-                            if (Result != 0 & status == 0)
-                            {
-                                status = 1;
-                            }
-                            else if (status == 0)
-                            {
-                                status = 0;
-                            }
-
-                        }
-                        if (Kind[0] >= 50 & Kind[0] <= 100)
-                        {
-
-
-                            command = new SqlCommand("SELECT ID FROM Stoppages where Description='" + Kind[0] + "'", connection);
-
-                            var VarStoppagesID = command.ExecuteScalar();
-
-                            long StoppagesID = (long)VarStoppagesID;
-
-
-                            if (Kind[0] < 100)
-                            {
-                                command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[StartTime],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + Order_numberHMI + "," + "10006" + ",'" + DateFromHMI + "'," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
-                            }
-                            else
-                            {
-                                command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[EndTime],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + Order_numberHMI + "," + "10006" + ",'" + DateFromHMI + "'," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
-                            }
-                            int Result = command.ExecuteNonQuery();
-
-                            if (Result != 0 & status == 0)
-                            {
-                                status = 1;
-                            }
-                            else if (status == 0)
-                            {
-                                status = 0;
-                            }
-
-                        }
-
-
 
                         /*Reply From SQL Sever
                         Status=0 Unable to Saved to SQL Server
@@ -361,14 +367,14 @@ namespace testpanel
                         ////ارسال لیست شماره شماره سفارش مبدا
                         int addressOrder = 371;
                         int addressLine = 299;
-                        command = new SqlCommand("SELECT OrderCode FROM vwDeviceOrders where IP='" + ListIP.Items[CounterList - 1].ToString() + "' and SendOrderCode=0", connection);
+                        command = new SqlCommand("SELECT OrderCode,ProductionLineLatinName FROM vwDeviceOrders where IP='" + ListIP.Items[CounterList - 1].ToString() + "' and SendOrderCode=1", connection);
 
                         using (var reader = command.ExecuteReader())
                         {
 
                             while (reader.Read())
                             {
-                                OrderCode = (long)reader.GetFloat(reader.GetOrdinal("OrderCode"));
+                                OrderCode = (long)reader.GetInt64(reader.GetOrdinal("OrderCode"));
                                 float Main_order = OrderCode;//شماره سفارش از سروربه پنل
                                 int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
                                 svimaster.WriteMultipleRegisters(addressOrder, floatreg);
@@ -380,8 +386,8 @@ namespace testpanel
                                 addressLine = addressLine + 12;
                             }
                         }
-                        command = new SqlCommand("Update Devices set SendOrderCode=0 where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
-                        command.ExecuteNonQuery();
+                        //command = new SqlCommand("Update Devices set SendOrderCode=0 where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
+                        //command.ExecuteNonQuery();
                     }
 
                     /////ارسال لیست شماره سفارش مقصد
@@ -393,7 +399,7 @@ namespace testpanel
                     {
                         int addressLine = 399;
                         int addressOrder = 519;
-                        command = new SqlCommand("SELECT OrderCode FROM vwDeviceOrders where IP!='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
+                        command = new SqlCommand("SELECT OrderCode,ProductionLineLatinName FROM vwDeviceOrders where IP!='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
 
                         using (var reader = command.ExecuteReader())
                         {
@@ -596,7 +602,7 @@ namespace testpanel
 
              catch (Exception ex)
              {
-                 ListErrors.Items.Add(ex.Message);
+                 ListErrors.Items.Add(ListIP.Items[CounterList - 1].ToString()+ ex.Message);
                  connection.Close();
                  lblWrong.Text = (Wrg = Wrg + 1).ToString();
              }
@@ -631,15 +637,6 @@ namespace testpanel
                 lblStatus.Text = "Error Read Device From Database";
             }
         }
-        void worker_DoWork(object sender, DoWorkEventArgs e)
-        {
-            //Glorious time-consuming code that no longer blocks!
-            while (true)
-            {
-               
-                    
-            }
-        }
 
         private void btnStartAutoRead_Click(object sender, EventArgs e)
         {
@@ -653,9 +650,9 @@ namespace testpanel
                 btnStartAutoRead.BackColor = Color.Red;
                 timerActive = true;
                 btnStartAutoRead.Text = "Stop";
-                var worker = new BackgroundWorker();
+/*                var worker = new BackgroundWorker();
                 worker.DoWork += new DoWorkEventHandler(worker_DoWork);
-                worker.RunWorkerAsync();
+                worker.RunWorkerAsync();*/
 
             }
             else
