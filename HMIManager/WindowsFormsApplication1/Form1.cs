@@ -134,7 +134,7 @@ namespace testpanel
         ///تایمر مربوط به خواندن هر دستگاه
         private void timer1_Tick(object sender, EventArgs e)
         {
-            try { 
+            //try { 
             connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456;MultipleActiveResultSets=true");
             connection.Close();
             connection.Open();
@@ -245,7 +245,8 @@ namespace testpanel
 
 
                         command = new SqlCommand("select ID from Part where PartCode='" + productcodeHMI + "'", connection);
-
+                        int PartStatus = 0;
+                        int OrderStatus = 0;
                         var varPartID = command.ExecuteScalar();
                         long PartID = 0;
                         if (varPartID != null)
@@ -261,63 +262,79 @@ namespace testpanel
                         if (PartID == 0)
                         {
                             PartID = 10011;
-                            status = 2;
+                            PartStatus = 1;
                         }
 
 
                         if (Order_numberHMI == 0)
                         {
                             Order_numberHMI = 99999;
-                            status = 2;
+                            OrderStatus = 1;
                         }
 
 
                         string Creator = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
                         string modifier = "2b2f093d-19c0-4abd-b4b8-512cdacd97ab";
 
+                            ///بررسی اینکه تا الان رکوردی با این زمان درج شده است یا خبر
+                            command = new SqlCommand("SELECT OrderCodeID FROM ProductiveDetails where AddDate='" + DateFromHMI + "'", connection);
+                            var varTempOrder = command.ExecuteScalar();
 
-                                if (Kind[0] == 1)
+
+                                if (Kind[0] == 1 & varTempOrder == null)
                                 {
                                     command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
 
                                     int Result = command.ExecuteNonQuery();
 
-                                    if (Result != 0 & status == 0)
+                                    if (Result != 0 & PartStatus == 0 & OrderStatus ==0)
                                     {
                                         status = 1;
                                     }
-                                    else if (status == 0)
+                                    else 
                                     {
-                                        status = 0;
+                                        status = 2;
                                     }
 
                                 }
-                                if (Kind[0] >= 2 & Kind[0] <= 49)
+                                if (Kind[0] >= 2 & Kind[0] <= 49 & varTempOrder == null)
                                 {
                                     command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_numberHMI + "," + PartID + "," + "10006" + "," + 1 + "," + 1 + "," + NetWeightHMI * (-1) + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
 
                                     int Result = command.ExecuteNonQuery();
 
-                                    if (Result != 0 & status == 0)
+                                    if (Result != 0 & PartStatus == 0 & OrderStatus == 0)
                                     {
                                         status = 1;
                                     }
-                                    else if (status == 0)
+                                    else
                                     {
-                                        status = 0;
+                                        status = 2;
                                     }
 
                                 }
-                                if (Kind[0] >= 50 & Kind[0] <= 100)
+                            ///بررسی اینکه تا الان رکوردی با این زمان درج شده است یا خبر
+                            command = new SqlCommand("SELECT OrderCodeID FROM ProductiveStoppages where AddDate='" + DateFromHMI + "'", connection);
+                            var varTempProductiveStopages = command.ExecuteScalar();
+
+                            if (Kind[0] >= 50 &  Kind[0] <= 100 & varTempProductiveStopages == null)
                                 {
 
 
                                     command = new SqlCommand("SELECT ID FROM Stoppages where Description='" + Kind[0] + "'", connection);
 
                                     var VarStoppagesID = command.ExecuteScalar();
+                            long StoppagesID = 0;
+                            if (VarStoppagesID == null)
+                            {
+                                StoppagesID = 99;
 
-                                    long StoppagesID = (long)VarStoppagesID;
+                            }
+                            else
+                            {
 
+                                StoppagesID= (long)VarStoppagesID;
+                            }
 
                                     if (Kind[0] < 100)
                                     {
@@ -329,17 +346,20 @@ namespace testpanel
                                     }
                                     int Result = command.ExecuteNonQuery();
 
-                                    if (Result != 0 & status == 0)
+                                    if (Result != 0  & OrderStatus == 0)
                                     {
                                         status = 1;
                                     }
-                                    else if (status == 0)
+                                    else
                                     {
-                                        status = 0;
+                                        status = 2;
                                     }
 
                                 }
-
+                            if(varTempOrder!=null || varTempProductiveStopages!=null)
+                        {
+                            status = 1;
+                        }
                                 Rad = Rad + 1;
                                 lblRead.Text = Rad.ToString();
 
@@ -357,11 +377,13 @@ namespace testpanel
                     }
 
                     long OrderCode = 0;
+                        ///خواندن اینکه دستگاه تازه روشن شده است یا خیر اگه تازه روشن شده باشد 0 است
+                    bool[] RestartHMI=svimaster.ReadCoils(5, 1);
 
                     command = new SqlCommand("SELECT SendOrderCode FROM Devices where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
                     var varSendOrderCode = command.ExecuteScalar();
                     bool SendOrderCode = (bool)varSendOrderCode;
-                    if (SendOrderCode == true)
+                    if (SendOrderCode == true || RestartHMI[0]==false)
                     {
                         ////ارسال لیست شماره شماره سفارش مبدا
                         int addressOrder = 371;
@@ -394,7 +416,7 @@ namespace testpanel
                     var varSendDestinationOrder = command.ExecuteScalar();
                     bool SendDestinationOrder = (bool)varSendDestinationOrder;
 
-                    if (SendDestinationOrder == true)
+                    if (SendDestinationOrder == true || RestartHMI[0]==false)
                     {
                         int addressLine = 399;
                         int addressOrder = 519;
@@ -405,7 +427,7 @@ namespace testpanel
 
                             while (reader.Read())
                             {
-                                OrderCode = (long)reader.GetFloat(reader.GetOrdinal("OrderCode"));
+                                OrderCode = (long)reader.GetInt64(reader.GetOrdinal("OrderCode"));
                                 float Main_order = OrderCode;//شماره سفارش از سروربه پنل
                                 int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_order);
                                 svimaster.WriteMultipleRegisters(addressOrder, floatreg);
@@ -427,8 +449,11 @@ namespace testpanel
                     var varSendGari = command.ExecuteScalar();
                     bool SendGari = (bool)varSendGari;
 
-                    if (SendGari == true)
-                    {
+
+                   // if (SendGari == true || RestartHMI[0]==false)
+
+                    if (SendGari == true )
+                        {
                         int address = 0;
                         command = new SqlCommand("SELECT ContainerCode,NetWieght FROM Container where IP='" + ListIP.Items[CounterList - 1].ToString() + "' and SendOrderCode=0", connection);
 
@@ -452,7 +477,7 @@ namespace testpanel
                         command = new SqlCommand("Update Devices set SendGari=0 where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
                         command.ExecuteNonQuery();
                         ///ست کردن بیت ارسال مجدد گاری برای بارگزاری مجدد دیتا از دیتا بیس
-                        svimaster.WriteSingleCoil(5, true);
+                        svimaster.WriteSingleCoil(6, true);
 
                     }
 
@@ -488,7 +513,7 @@ namespace testpanel
 
                     bool[] ChangeOrderCode = svimaster.ReadCoils(4, 1);//تغییری در کد سفارش اتفاق افتاده است یا خیر : خیر=0
 
-                    if (ChangeOrderCode[0] == true)
+                    if (ChangeOrderCode[0] == true )
                     {
                         int[] OrderCodeChange = svimaster.ReadHoldingRegisters(0, 2);
                         OrderCode = (long)ModbusClient.ConvertRegistersToFloat(OrderCodeChange);
@@ -583,20 +608,23 @@ namespace testpanel
                     // svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
                     lblStatus.Text = "Read Device " + ListIP.Items[CounterList - 1].ToString();
                     ///مربوط به الگوریتم خواندن کلیه ای پی ها از لیست
-
+                    svimaster.WriteSingleCoil(5, true);
                 }
                 CounterList = CounterList - 1;
+                //// برای قسمت تازه روشن دستگاه و یک کردن آن
+                
+
                 connection.Close();
                 svimaster.Disconnect();
                 int i = DateTime.Compare(DateTime.Now, startTime);
                 TimeSpan avgTime = DateTime.Now.Subtract(startTime);
                 lblAvarage.Text = (avgTime.TotalSeconds / Crt).ToString();
             }
-
+            
             connection.Close();
             svimaster.Disconnect();
 
-             }
+             /*}
 
 
              catch (Exception ex)
@@ -604,7 +632,7 @@ namespace testpanel
                  ListErrors.Items.Add(ListIP.Items[CounterList - 1].ToString()+ ex.Message);
                  connection.Close();
                  lblWrong.Text = (Wrg = Wrg + 1).ToString();
-             }
+             }*/
 
 
         }
