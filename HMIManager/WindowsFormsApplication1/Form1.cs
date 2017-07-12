@@ -95,7 +95,7 @@ namespace testpanel
                     s = ListIP.Items[CounterList - 1].ToString();
 
 
-                    r = p.Send(s, 100);
+                    r = p.Send(s, 1);
 
 
                     if (r.Status == IPStatus.Success)
@@ -103,14 +103,14 @@ namespace testpanel
 
 
                         lblStatus.Text = "connect " + ListIP.Items[CounterList - 1].ToString();
-                        svimaster.ConnectionTimeout = 10;
+                        svimaster.ConnectionTimeout = 1;
                         s = svimaster.ToString();
 
                         svimaster.Connect(ListIP.Items[CounterList - 1].ToString(), 502);
 
                         //  ListErrors.Items.Add(CounterList.ToString() + "s" + DateTime.Now.TimeOfDay.Seconds.ToString() + ":" + DateTime.Now.TimeOfDay.Milliseconds.ToString());
                         int[] Main_ProductCode;
-                        lblStatus.Text = "connect " + ListIP.Items[CounterList - 1].ToString() + " ok";
+                        // lblStatus.Text = "connect " + ListIP.Items[CounterList - 1].ToString() + " ok";
                         bool[] checkbit = svimaster.ReadCoils(0, 1);// Check bit send from HMI
                                                                     //Read Data From HMI
                         if (checkbit[0] == true)
@@ -128,7 +128,7 @@ namespace testpanel
                             int[] Kind = svimaster.ReadHoldingRegisters(112, 1);//نوع محصول
 
                             ///کد نمونه
-                            int[] Samplee = svimaster.ReadHoldingRegisters(109, 2);//نمونه
+                            int[] AmountHMI1 = svimaster.ReadHoldingRegisters(109, 2);//نمونه
 
                             /// کد سفارش و کالای مبدا
                             int[] Order_number_Source_HMI = svimaster.ReadHoldingRegisters(107, 2);
@@ -139,7 +139,7 @@ namespace testpanel
 
 
                             float NetWeightHMI = ModbusClient.ConvertRegistersToFloat(Weight);//وزن 
-                            float SampleHMI = ModbusClient.ConvertRegistersToFloat(Samplee);//نمونه
+                            float Amount1 = ModbusClient.ConvertRegistersToFloat(AmountHMI1);//نمونه
                             double DateHMI = ModbusClient.ConvertRegistersToDouble(Datee);//تاریخ
                             double TimeHMI = ModbusClient.ConvertRegistersToDouble(Timee);//ساعت
 
@@ -156,7 +156,6 @@ namespace testpanel
                             //check Order Code
                             command = new SqlCommand("SELECT OrderCode FROM [Order] where OrderCode=" + Order_number_Source.ToString(), connection);
                             var varOrderCode = command.ExecuteScalar();
-
 
                             if (varOrderCode == null)
                             {
@@ -210,6 +209,30 @@ namespace testpanel
                             }
 
 
+
+
+
+                            /////کد کالای ضایعاتی
+                            command = new SqlCommand("select PartWesteID from Part where PartCode='" + Product_Code_Source + "'", connection);
+                           
+                            
+
+                            ///جواب دیتابیس آیا کد کالای ضایعاتی وجود دارد یا نه
+
+                            var varPartWasteID = command.ExecuteScalar();
+                            long PartWasteID = 0;
+                            ////آیا کد کالای ضایعاتی در دیتابیس وجود دارد
+                            if (varPartWasteID != null)
+                            {
+                                PartWasteID = (long)varPartWasteID;
+                            }
+                            else
+                            {
+                                ///در صورتی که وجود ندارد کد پیش فرض تعلق میگیرد
+                                PartWasteID = 30025;
+                            }
+
+                            ////شماره سفارش
                             if (Order_number_Source == 0)
                             {
 
@@ -232,7 +255,7 @@ namespace testpanel
 
                             if (Kind[0] == 1 & varTempOrder == null)
                             {
-                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,Amount1,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + Amount1 + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
 
                                 int Result = command.ExecuteNonQuery();
 
@@ -248,7 +271,7 @@ namespace testpanel
                             }
                             else if (Kind[0] >= 2 & Kind[0] <= 49 & varTempOrder == null)
                             {
-                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + PartID + "," + "10006" + "," + 1 + "," + 1 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,FromPartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + PartWasteID + "," + PartID + "," + "10006" + "," + 1 + "," + 1 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
 
                                 int Result = command.ExecuteNonQuery();
 
@@ -319,10 +342,15 @@ namespace testpanel
                                 }
 
                             }
+                            if(Kind[0]==0)
+                            {
+                                status = 2;
+                            }
                             if (varTempOrder != null || varTempProductiveStopages != null)
                             {
                                 status = 1;
                             }
+                           
                             Rad = Rad + 1;
                             lblRead.Text = Rad.ToString();
 
@@ -483,7 +511,7 @@ namespace testpanel
                                         }
                                     }
                                 }
-
+                               
                                 svimaster.WriteSingleCoil(4, false);
                             }
                         }
@@ -541,7 +569,11 @@ namespace testpanel
                         // svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
                         lblStatus.Text = "Read Device " + ListIP.Items[CounterList - 1].ToString();
                         ///مربوط به الگوریتم خواندن کلیه ای پی ها از لیست
-                        svimaster.WriteSingleCoil(5, true);
+                        if (RestartHMI[0] == false)
+                        {
+                            svimaster.WriteSingleCoil(5, true);
+                        }
+                        
                     }
                     CounterList = CounterList - 1;
                     //// برای قسمت تازه روشن دستگاه و یک کردن آن
