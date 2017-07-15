@@ -72,8 +72,8 @@ namespace testpanel
         ///تایمر مربوط به خواندن هر دستگاه
         private void timer1_Tick(object sender, EventArgs e)
         {
-            try
-            {
+            ///try
+            ///{
                 connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456;MultipleActiveResultSets=true");
                 connection.Close();
                 connection.Open();
@@ -221,6 +221,7 @@ namespace testpanel
 
                             var varPartWasteID = command.ExecuteScalar();
                             long PartWasteID = 0;
+                        
                             ////آیا کد کالای ضایعاتی در دیتابیس وجود دارد
                             if (varPartWasteID != null)
                             {
@@ -253,9 +254,14 @@ namespace testpanel
                             var varTempProductiveStopages = command.ExecuteScalar();
 
 
+                            ////گرفتن شماره خط تولید از ای پی
+                            command = new SqlCommand("SELECT ProductionLineID FROM Devices where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
+                            var varProductionLineID = command.ExecuteScalar();
+
+                            string ProductionLineID = varProductionLineID.ToString();
                             if (Kind[0] == 1 & varTempOrder == null)
                             {
-                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,Amount1,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + Amount1 + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + ProductionLineID +  "," + PartID + "," + "10006" + "," + 1 + "," + 0 + "," + NetWeightHMI + "," + Amount1 + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
 
                                 int Result = command.ExecuteNonQuery();
 
@@ -271,7 +277,7 @@ namespace testpanel
                             }
                             else if (Kind[0] >= 2 & Kind[0] <= 49 & varTempOrder == null)
                             {
-                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,FromPartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + PartWasteID + "," + PartID + "," + "10006" + "," + 1 + "," + 1 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
+                                command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,FromPartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + Order_number_Source + "," + ProductionLineID + "," + PartWasteID + "," + PartID + "," + "10006" + "," + 1 + "," + 1 + "," + NetWeightHMI + "," + 1 + ",'" + Creator + "','" + DateFromHMI + "','" + modifier + "','" + DateFromHMI + "')", connection);
 
                                 int Result = command.ExecuteNonQuery();
 
@@ -589,15 +595,15 @@ namespace testpanel
                 connection.Close();
                 svimaster.Disconnect();
 
-            }
+            ///}
 
 
-            catch (Exception ex)
-            {
-                ListErrors.Items.Add(ListIP.Items[CounterList - 1].ToString() + ex.Message);
-                connection.Close();
-                lblWrong.Text = (Wrg = Wrg + 1).ToString();
-            }
+            ///catch (Exception ex)
+            ///{
+               /// ListErrors.Items.Add(ListIP.Items[CounterList - 1].ToString() + ex.Message);
+                ///connection.Close();
+                ///lblWrong.Text = (Wrg = Wrg + 1).ToString();
+            ///}
 
         }
 
