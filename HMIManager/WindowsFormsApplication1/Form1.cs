@@ -395,8 +395,8 @@ namespace testpanel
                                 addressLine = addressLine + 12;
                             }
                         }
-                        //command = new SqlCommand("Update Devices set SendOrderCode=0 where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
-                        //command.ExecuteNonQuery();
+                        command = new SqlCommand("Update Devices set SendOrderCode=0 where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
+                        command.ExecuteNonQuery();
                     }
 
                     /////ارسال لیست شماره سفارش مقصد
