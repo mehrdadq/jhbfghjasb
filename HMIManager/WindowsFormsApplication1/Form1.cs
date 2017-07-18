@@ -49,8 +49,8 @@ namespace testpanel
         ///تایمر مربوط به خواندن هر دستگاه
         private void timer1_Tick(object sender, EventArgs e)
         {
-            //   try
-            /// {
+            try
+            {
             connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456;MultipleActiveResultSets=true");
             connection.Close();
             connection.Open();
@@ -220,6 +220,7 @@ namespace testpanel
                             ///در صورتی که وجود ندارد کد پیش فرض تعلق میگیرد
                             PartWasteID = 30025;
                         }
+
                         ////شماره سفارش
                         if (Order_number_Source == 0)
                         {
@@ -488,7 +489,7 @@ namespace testpanel
                             {
                                 for (int j = 199; j <= 251; j = j + 13)
                                 {
-                                    svimaster.WriteMultipleRegisters(j, ModbusClient.ConvertStringToRegisters(""));
+                                    svimaster.WriteMultipleRegisters(j, ModbusClient.ConvertStringToRegisters("            "));
                                 }
 
 
@@ -532,7 +533,7 @@ namespace testpanel
                             {
                                 for (int j = 199; j <= 251; j = j + 13)
                                 {
-                                    svimaster.WriteMultipleRegisters(j, ModbusClient.ConvertStringToRegisters(""));
+                                    svimaster.WriteMultipleRegisters(j, ModbusClient.ConvertStringToRegisters("                "));
                                 }
 
 
@@ -584,15 +585,15 @@ namespace testpanel
             connection.Close();
             svimaster.Disconnect();
 
-            //}
+            }
 
 
-            ///catch (Exception ex)
-            ///{
-            //ListErrors.Items.Add(ListIP.Items[CounterList - 1].ToString() + ex.Message);
-            ///connection.Close();
-            ///lblWrong.Text = (Wrg = Wrg + 1).ToString();
-            ///}
+            catch (Exception ex)
+            {
+            ListErrors.Items.Add(ListIP.Items[CounterList - 1].ToString() + ex.Message);
+            connection.Close();
+            lblWrong.Text = (Wrg = Wrg + 1).ToString();
+            }
 
         }
 
