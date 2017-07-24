@@ -47,6 +47,8 @@
             this.label4 = new System.Windows.Forms.Label();
             this.lblAvarage = new System.Windows.Forms.Label();
             this.ListErrors = new System.Windows.Forms.ListBox();
+            this.ListRegion = new System.Windows.Forms.ListBox();
+            this.ListProductionLine = new System.Windows.Forms.ListBox();
             timer1 = new System.Windows.Forms.Timer(this.components);
             this.SuspendLayout();
             // 
@@ -84,6 +86,7 @@
             this.ListIP.Name = "ListIP";
             this.ListIP.Size = new System.Drawing.Size(108, 134);
             this.ListIP.TabIndex = 4;
+            this.ListIP.SelectedIndexChanged += new System.EventHandler(this.ListIP_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -223,6 +226,23 @@
             this.ListErrors.Size = new System.Drawing.Size(398, 329);
             this.ListErrors.TabIndex = 18;
             // 
+            // ListRegion
+            // 
+            this.ListRegion.FormattingEnabled = true;
+            this.ListRegion.Location = new System.Drawing.Point(34, 102);
+            this.ListRegion.Name = "ListRegion";
+            this.ListRegion.Size = new System.Drawing.Size(108, 134);
+            this.ListRegion.TabIndex = 19;
+            this.ListRegion.Visible = false;
+            // 
+            // ListProductionLine
+            // 
+            this.ListProductionLine.FormattingEnabled = true;
+            this.ListProductionLine.Location = new System.Drawing.Point(34, 102);
+            this.ListProductionLine.Name = "ListProductionLine";
+            this.ListProductionLine.Size = new System.Drawing.Size(108, 134);
+            this.ListProductionLine.TabIndex = 20;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -243,9 +263,11 @@
             this.Controls.Add(this.label2);
             this.Controls.Add(this.txtIP);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.ListIP);
             this.Controls.Add(this.btnLoadDevice);
             this.Controls.Add(this.btnReadManual);
+            this.Controls.Add(this.ListProductionLine);
+            this.Controls.Add(this.ListIP);
+            this.Controls.Add(this.ListRegion);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Software Towzin";
@@ -275,6 +297,8 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label lblAvarage;
         private System.Windows.Forms.ListBox ListErrors;
+        private System.Windows.Forms.ListBox ListRegion;
+        private System.Windows.Forms.ListBox ListProductionLine;
     }
 }
 
