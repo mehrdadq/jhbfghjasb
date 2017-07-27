@@ -265,9 +265,9 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.btnLoadDevice);
             this.Controls.Add(this.btnReadManual);
-            this.Controls.Add(this.ListProductionLine);
             this.Controls.Add(this.ListIP);
             this.Controls.Add(this.ListRegion);
+            this.Controls.Add(this.ListProductionLine);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "Form1";
             this.Text = "Software Towzin";

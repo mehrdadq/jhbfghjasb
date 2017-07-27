@@ -108,9 +108,9 @@ namespace testpanel
                                 ///50-100 توقف
                                 int[] kindHMI = svimaster.ReadHoldingRegisters(112, 1);//نوع محصول
                                 int[] sourceOrderCodeHMI = svimaster.ReadHoldingRegisters(107, 2);//کدسفارش مبدا
-                                int[] sourceProductCodeHMI = svimaster.ReadHoldingRegisters(19, 12);///کد کالای مبدا
+                                int[] sourceProductCodeHMI = svimaster.ReadHoldingRegisters(19, 15);///کد کالای مبدا
                                 int[] destinationOrderCodeHMI = svimaster.ReadHoldingRegisters(118, 2);///کد سفارش مقصد
-                                int[] destinationProductCodeHMI = svimaster.ReadHoldingRegisters(40, 12);//کد کالای مقصد
+                                int[] destinationProductCodeHMI = svimaster.ReadHoldingRegisters(40, 15);//کد کالای مقصد
                                 ///}
 
 
@@ -121,9 +121,9 @@ namespace testpanel
                                 double dateInsert = ModbusClient.ConvertRegistersToDouble(dateHMI);//تاریخ
                                 double timeInsert = ModbusClient.ConvertRegistersToDouble(timeHMI);//ساعت
                                 float sourceOrderCode = ModbusClient.ConvertRegistersToFloat(sourceOrderCodeHMI);//کد شماره سفارش مبدا
-                                string sourceProductCode = ModbusClient.ConvertRegistersToString(sourceProductCodeHMI, 0, 12);//کد محصول مبدا
+                                string sourceProductCode = ModbusClient.ConvertRegistersToString(sourceProductCodeHMI, 0, 15);//کد محصول مبدا
                                 float destinationOrderCode = ModbusClient.ConvertRegistersToFloat(destinationOrderCodeHMI);//شماره سفارش مقصد
-                                string destinationPartCode = ModbusClient.ConvertRegistersToString(destinationProductCodeHMI, 0, 12);//کد محصول مقصد
+                                string destinationPartCode = ModbusClient.ConvertRegistersToString(destinationProductCodeHMI, 0, 15);//کد محصول مقصد
 
                                 ///
                                 DateTime dateTime;
@@ -322,31 +322,42 @@ namespace testpanel
                                 ////گرفتن شماره خط تولید از ای پی
                                 
                                 string ProductionLineID = ListProductionLine.Items[CounterList - 1].ToString();
-
-
+                                string destinationProductionLineID = "";
+                                command = new SqlCommand("SELECT ProductionLineID FROM [Order] where OrderCode=" + destinationOrderCode + "", connection);
+                                var tempDestinationProductionLineID = command.ExecuteScalar();
+                                if(tempDestinationProductionLineID!=null)
+                                {
+                                    destinationProductionLineID = tempDestinationProductionLineID.ToString();
+                                }
+                                else
+                                {
+                                    destinationProductionLineID = "20006";
+                                }
                                 if (kindHMI[0] == 1 & tempProductiveDetails == null)
                                 {
+                                    int Result1 = 1;
                                     if (destinationOrderCode == 0)
                                     {
                                         command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
                                     }
                                     else
                                     {
-                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,ToOrderCodeID,ToPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + destinationOrderCode + "," + destinationPartID  + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
-                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,FromOrderCodeID,FromPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + destinationPartID + "," + ProductionLineID + "," + destinationPartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + sourceOrderCode + "," + sourcePartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
-                                    }
+                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,ToOrderCodeID,ToPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + destinationOrderCode + "," + destinationPartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        Result1 = command.ExecuteNonQuery();
+                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,FromOrderCodeID,FromPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + destinationOrderCode + "," + destinationProductionLineID + "," + sourcePartID + "," + "10006" + "," + 0 + "," + 0 + "," + amount + "," + amount1 + "," + sourceOrderCode + "," + sourcePartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
 
-                                    int Result = command.ExecuteNonQuery();
-
-                                    if (Result != 0 & orderError == false & partError == false)
-                                    {
-                                        status = 1;
                                     }
-                                    else
-                                    {
-                                        status = 2;
-                                    }
+                                        int Result = command.ExecuteNonQuery();
 
+                                        if (Result != 0 & orderError == false & partError == false & Result1 != 0)
+                                        {
+                                            status = 1;
+                                        }
+                                        else
+                                        {
+                                            status = 2;
+                                        }
+                                    
                                 }
                                 else if (kindHMI[0] >= 2 & kindHMI[0] <= 49 & tempProductiveDetails == null)
                                 {
@@ -489,12 +500,12 @@ namespace testpanel
 
                             if (SendDestinationOrder == true || RestartHMI[0] == false)
                             {
-                                int addressLine = 401;
-                                int addressOrder = 521;
+                                int addressLine = 399;
+                                int addressOrder = 519;
 
 
                                 command = new SqlCommand("SELECT OrderCode,ProductionLineLatinName FROM vwDeviceOrders where IP!='" + ListIP.Items[CounterList - 1].ToString() + "' and Region=" + ListRegion.Items[CounterList - 1].ToString(), connection);
-
+                            
                                 using (var reader = command.ExecuteReader())
                                 {
 
@@ -566,7 +577,7 @@ namespace testpanel
                                 OrderCodeSource = (long)ModbusClient.ConvertRegistersToFloat(OrderCodeSourceChange);
 
 
-                                int Address = 199;
+                                int Address = 200;
 
                                 using (connection)
                                 using (command = new SqlCommand("select * from vwOrderParts where OrderCode=" + OrderCodeSource.ToString(), connection))
@@ -587,8 +598,9 @@ namespace testpanel
                                                 string Main_prod_code = PartCodeSource;//کد کالا از سرور به پنل
                                                 Main_ProductCode = ModbusClient.ConvertStringToRegisters(Main_prod_code);
                                                 svimaster.WriteMultipleRegisters(Address, Main_ProductCode);
-                                                Address = Address + 13;
+                                                Address = Address + 15;
                                             }
+
                                         }
                                     }
 
@@ -630,7 +642,7 @@ namespace testpanel
                                                 ///string Main_prod_code = tempSourcePartCode;//کد کالا از سرور به پنل
                                                 Main_ProductCode = ModbusClient.ConvertStringToRegisters(tempSourcePartCode);
                                                 svimaster.WriteMultipleRegisters(addressPartCode, Main_ProductCode);
-                                                addressPartCode = addressPartCode + 12;
+                                                addressPartCode = addressPartCode + 15;
 
                                                 string tempSourcePartName = (string)reader.GetString(reader.GetOrdinal("LatinName"));
                                                 string Main_prod_code = tempSourcePartName;//کد کالا از سرور به پنل
