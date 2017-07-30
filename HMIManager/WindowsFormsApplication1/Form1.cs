@@ -534,42 +534,45 @@ namespace testpanel
                             bool SendGari = (bool)varSendGari;
 
 
-                            // if (SendGari == true || RestartHMI[0]==false)
+                           if (SendGari == true || RestartHMI[0]==false)
 
-                            if (SendGari == true)
+                            //if (SendGari == true)
                             {
-                                int address = 0;
-                                command = new SqlCommand("SELECT ContainerCode,NetWieght FROM Container where IP='" + ListIP.Items[CounterList - 1].ToString() + "' and SendOrderCode=0", connection);
+                                int addressContainerCode = 800;
+                                int addressContainerNetWeight = 600;
+                                command = new SqlCommand("SELECT ContainerCode,NetWeight FROM Container", connection);
 
                                 using (var reader = command.ExecuteReader())
                                 {
 
                                     while (reader.Read())
                                     {
-                                        int ContainerCode = (int)reader.GetInt64(reader.GetOrdinal("ContainerCode"));
-                                        float Main_ContainerCode = ContainerCode;
-                                        int[] floatreg = ModbusClient.ConvertFloatToTwoRegisters(Main_ContainerCode);
-                                        svimaster.WriteMultipleRegisters(address, floatreg);
+                                        int ContainerCode = reader.GetInt32(reader.GetOrdinal("ContainerCode"));
+                                        svimaster.WriteSingleRegister(addressContainerCode, ContainerCode);
 
 
-                                        float Main_NetWeight = (float)reader.GetFloat(reader.GetOrdinal("NetWeight"));
+                                        float Main_NetWeight = (float)reader.GetDouble(reader.GetOrdinal("NetWeight"));
                                         int[] NetWeight = ModbusClient.ConvertFloatToTwoRegisters(Main_NetWeight);
-                                        svimaster.WriteMultipleRegisters(address + 24, NetWeight);
-                                        address = address + 1;
+                                        svimaster.WriteMultipleRegisters(addressContainerNetWeight, NetWeight);
+
+                                        addressContainerCode = addressContainerCode + 1;
+                                        addressContainerNetWeight = addressContainerNetWeight + 2;
                                     }
                                 }
                                 command = new SqlCommand("Update Devices set SendGari=0 where IP='" + ListIP.Items[CounterList - 1].ToString() + "'", connection);
                                 command.ExecuteNonQuery();
+
                                 ///ست کردن بیت ارسال مجدد گاری برای بارگزاری مجدد دیتا از دیتا بیس
                                 svimaster.WriteSingleCoil(7, true);
-
                             }
+                       
 
 
 
-                            ////ارسال کد کالاهای سفارش مبدا در صورت تغییر در سفارش پنل 
 
-                            bool[] ChangeOrderCodeSource = svimaster.ReadCoils(4, 1);//تغییری در کد سفارش اتفاق افتاده است یا خیر : خیر=0
+                        ////ارسال کد کالاهای سفارش مبدا در صورت تغییر در سفارش پنل 
+
+                        bool[] ChangeOrderCodeSource = svimaster.ReadCoils(4, 1);//تغییری در کد سفارش اتفاق افتاده است یا خیر : خیر=0
 
                             if (ChangeOrderCodeSource[0] == true)
                             {
@@ -666,10 +669,10 @@ namespace testpanel
                             // svimaster.WriteMultipleRegisters(2, Main_ProductCode);               
                             lblStatus.Text = "Read Device " + ListIP.Items[CounterList - 1].ToString();
                             ///مربوط به الگوریتم خواندن کلیه ای پی ها از لیست
-                            if (RestartHMI[0] == false)
-                            {
+                           
+                           
                                 svimaster.WriteSingleCoil(5, true);
-                            }
+                          
 
                         }
                         CounterList = CounterList - 1;
