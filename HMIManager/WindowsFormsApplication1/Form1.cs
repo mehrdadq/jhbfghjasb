@@ -672,7 +672,8 @@ namespace testpanel
                            
                            
                                 svimaster.WriteSingleCoil(5, true);
-                          
+                            svimaster.WriteSingleCoil(8, true);
+
 
                         }
                         CounterList = CounterList - 1;
