@@ -199,23 +199,23 @@ namespace testpanel
 
                                 ////چک کردن کد کالای مقصد
                                 ///{
-                                temp = destinationPartCode.IndexOf("\0");
-                                if (temp < 0)
-                                {
-                                    destinationPartCode = destinationPartCode.Substring(0, 11);
-                                }
-                                else if (temp == 0)
-                                {
+                        //        temp = destinationPartCode.IndexOf("\0");
+                          //      if (temp < 0)
+                            //    {
+                              //      destinationPartCode = destinationPartCode.Substring(0, 11);
+                                //}
+                                //else if (temp == 0)
+                                //{
                                     
-                                        destinationPartCode = "99999";
+                                  //      destinationPartCode = "99999";
                                     
                                     
 
-                                }
-                                else if (temp > 0)
-                                {
-                                    destinationPartCode = destinationPartCode.Substring(0, temp);
-                                }
+                               // }
+                              //  else if (temp > 0)
+                            //    {
+                          //          destinationPartCode = destinationPartCode.Substring(0, temp);
+                         //       }
                                 ////}
 
 
@@ -247,38 +247,39 @@ namespace testpanel
                                 ///}
 
 
+                               
+                                //long destinationpartid = 0;
+                                /////چک کردن کد کالای سفارش مقصد
+                                //if (destinationpartcode.trim() != "")
+                                //{
+                                //    command = new sqlcommand("select id from part where partcode='" + destinationpartcode + "'", connection);
+                                //    var temppartid = command.executescalar();
+                                //    ////آیا کد کالا در دیتابیس وجود دارد
+                                //    if (temppartid != null)
+                                //    {
+                                //        destinationpartid = (long)temppartid;
+                                //    }
+                                //    else
+                                //    {
+                                //        ///در صورتی که وجود ندارد کد پیش فرض تعلق میگیرد
+                                //        destinationpartid = 10011;
+                                //    }
 
-                                long destinationPartID = 0;
-                                ///چک کردن کد کالای سفارش مقصد
-                                if (destinationPartCode.Trim() != "")
-                                {
-                                    command = new SqlCommand("select ID from Part where PartCode='" + destinationPartCode + "'", connection);
-                                    var tempPartID = command.ExecuteScalar();
-                                    ////آیا کد کالا در دیتابیس وجود دارد
-                                    if (tempPartID != null)
-                                    {
-                                        destinationPartID = (long)tempPartID;
-                                    }
-                                    else
-                                    {
-                                        ///در صورتی که وجود ندارد کد پیش فرض تعلق میگیرد
-                                        destinationPartID = 10011;
-                                    }
+                                //}
+                                //else
+                                //{
+                                //    destinationpartid = 10011;
+                                //}
 
-                                }
-                                else
-                                {
-                                    destinationPartID = 10011;
-                                }
                                 ////}پایان چک کردن در دیتا بیس 
-
+                               
 
                                 ////گرفتن کد کالای ضایعاتی در صورتی وجود کد کالای مبدا
                                 /////{
                                 long partWasteID = 0;
                                 if (sourceProductCode != "99999")
                                 {
-                                    command = new SqlCommand("select PartWesteID from Part where PartCode='" + destinationPartCode + "'", connection);
+                                    command = new SqlCommand("select PartWesteID from Part where PartCode='" + sourceProductCode + "'", connection);
                                     if (command.ExecuteScalar() != null)
                                     {
                                         if (command.ExecuteScalar().ToString().Trim() != "")
@@ -333,21 +334,26 @@ namespace testpanel
                                 {
                                     destinationProductionLineID = "20006";
                                 }
+
                                 if (kindHMI[0] == 1 & tempProductiveDetails == null)
                                 {
                                     int Result1 = 1;
+                                    int Result = 1;
                                     if (destinationOrderCode == 0)
                                     {
                                         command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
                                     }
                                     else
                                     {
-                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,ToOrderCodeID,ToPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + destinationOrderCode + "," + destinationPartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        //with Destination Code
+                                        //command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,ToOrderCodeID,ToPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + destinationOrderCode + "," + destinationPartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+
+                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,ToOrderCodeID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + destinationOrderCode + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
                                         Result1 = command.ExecuteNonQuery();
                                         command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,FromOrderCodeID,FromPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + destinationOrderCode + "," + destinationProductionLineID + "," + sourcePartID + "," + "10006" + "," + 0 + "," + 0 + "," + amount + "," + amount1 + "," + sourceOrderCode + "," + sourcePartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
-
+                                        Result = command.ExecuteNonQuery();
                                     }
-                                        int Result = command.ExecuteNonQuery();
+                                        
 
                                         if (Result != 0 & orderError == false & partError == false & Result1 != 0)
                                         {
