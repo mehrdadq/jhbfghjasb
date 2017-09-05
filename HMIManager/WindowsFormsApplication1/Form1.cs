@@ -56,6 +56,7 @@ namespace testpanel
                     connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456;MultipleActiveResultSets=true");
                     connection.Close();
                     connection.Open();
+
                     /// مربوط به الگوریتم خواندن کلیه ای پی ها از لیست 
                     if (ListIP.Items.Count != 0 & CounterList == 0)
                     {
@@ -124,8 +125,6 @@ namespace testpanel
                                 string sourceProductCode = ModbusClient.ConvertRegistersToString(sourceProductCodeHMI, 0, 15);//کد محصول مبدا
                                 float destinationOrderCode = ModbusClient.ConvertRegistersToFloat(destinationOrderCodeHMI);//شماره سفارش مقصد
                                 string destinationPartCode = ModbusClient.ConvertRegistersToString(destinationProductCodeHMI, 0, 15);//کد محصول مقصد
-
-                                ///
                                 DateTime dateTime;
                                 if (dateInsert > 999999)
                                 {
@@ -138,28 +137,27 @@ namespace testpanel
                                 ////}
 
 
-
                                 /////چک کردن اطلاعات دریافتی با دیتابیس جهت تایید اطلاعات گرفته شده
                                 ////{
                                 bool partError = false;
                                 bool orderError = false;
                                 int status = 0; //جواب سرور دیتابیس
+
+
                                 ////چک کردن کد سفارش مبدا در دیتا بیس
                                 ////{
                                 command = new SqlCommand("SELECT OrderCode FROM [Order] where OrderCode=" + sourceOrderCode.ToString(), connection);
                                 var tempSourceOrderCode = command.ExecuteScalar();
                                 if (tempSourceOrderCode == null)
                                 {
-
                                     sourceOrderCode = 99999;
-                                    orderError = true;
-
+                                //    orderError = true;
                                 }
                                 ////}
 
                                 ///چک کردن کد سفارش مقصد در دیتا بیس
                                 ///{
-                                ///شرط جهت چک کردن اینکه اصلا کد سفارش مقصد وارد شده است یا نه
+                                //شرط جهت چک کردن اینکه اصلا کد سفارش مقصد وارد شده است یا نه
                                 if (destinationOrderCode > 0)
                                 {
                                     //check Order Code Destination
@@ -169,7 +167,7 @@ namespace testpanel
                                     if (tempDestinationOrderCode == null)
                                     {
                                         destinationOrderCode = 99999;
-                                        orderError = true;
+                                        //orderError = true;
                                     }
 
                                 }
@@ -184,11 +182,12 @@ namespace testpanel
                                 {
                                     sourceProductCode = sourceProductCode.Substring(0, 11);
                                 }
+
                                 else if (temp == 0)
                                 {
                                     sourceProductCode = "99999";
-
                                 }
+
                                 else if (temp > 0)
                                 {
                                     sourceProductCode = sourceProductCode.Substring(0, temp);
@@ -219,15 +218,15 @@ namespace testpanel
                                 ////}
 
 
+
+
                                 ////چک کردن کد کالای سفارش مبدا در دیتا بیس   
                                 ////{                             
                                 long sourcePartID = 0;
                                 if (sourceProductCode != "99999")
                                 {
                                     command = new SqlCommand("select ID from Part where PartCode='" + sourceProductCode + "'", connection);
-
                                     var tempPartID = command.ExecuteScalar();
-
                                     ////آیا کد کالا در دیتابیس وجود دارد
                                     if (tempPartID != null)
                                     {
@@ -237,7 +236,6 @@ namespace testpanel
                                     {
                                         ///در صورتی که وجود ندارد کد پیش فرض تعلق میگیرد
                                         sourcePartID = 10011;
-
                                     }
                                 }
                                 else
@@ -270,20 +268,18 @@ namespace testpanel
                                 //{
                                 //    destinationpartid = 10011;
                                 //}
-
+                                    
                                 ////}پایان چک کردن در دیتا بیس 
                                
 
                                 ////گرفتن کد کالای ضایعاتی در صورتی وجود کد کالای مبدا
                                 /////{
                                 long partWasteID = 0;
-                                if (sourceProductCode != "99999")
+                                if (sourcePartID != 10011)
                                 {
-                                    command = new SqlCommand("select PartWesteID from Part where PartCode='" + sourceProductCode + "'", connection);
+                                    command = new SqlCommand("select PartWesteID from Part where ID='" + sourcePartID + "'", connection);
                                     if (command.ExecuteScalar() != null)
                                     {
-                                        if (command.ExecuteScalar().ToString().Trim() != "")
-                                        {
 
                                             var tempPartWasteID = command.ExecuteScalar();
                                             ////آیا کد کالای ضایعاتی در دیتابیس وجود دارد
@@ -293,7 +289,7 @@ namespace testpanel
                                             }
 
                                         }
-                                    }
+                                    
                                     if (partWasteID == 0)
                                     {
                                         ///در صورتی که وجود ندارد کد پیش فرض تعلق میگیرد
@@ -319,9 +315,7 @@ namespace testpanel
                                 command = new SqlCommand("SELECT OrderCodeID FROM ProductiveStoppages where AddDate='" + dateTime + "'", connection);
                                 var tempProductiveStopages = command.ExecuteScalar();
 
-
                                 ////گرفتن شماره خط تولید از ای پی
-                                
                                 string ProductionLineID = ListProductionLine.Items[CounterList - 1].ToString();
                                 string destinationProductionLineID = "";
                                 command = new SqlCommand("SELECT ProductionLineID FROM [Order] where OrderCode=" + destinationOrderCode + "", connection);
