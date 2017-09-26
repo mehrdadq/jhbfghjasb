@@ -52,7 +52,7 @@ namespace testpanel
             if (timerActive == true)
             {
                 try
-                {
+                    {
                     connection = new SqlConnection(@"Data Source=192.168.1.11\Towzin;Initial Catalog=Towzin;User ID=towzin;Password=123456;MultipleActiveResultSets=true");
                     connection.Close();
                     connection.Open();
@@ -277,18 +277,21 @@ namespace testpanel
                                 long partWasteID = 0;
                                 if (sourcePartID != 10011)
                                 {
-                                    command = new SqlCommand("select PartWesteID from Part where ID='" + sourcePartID + "'", connection);
-                                    if (command.ExecuteScalar() != null)
+                                    command = new SqlCommand("select count(PartWesteID) from Part where ID='" + sourcePartID + "'", connection);
+                                
+                                    if ((Int32)command.ExecuteScalar() != 0)
                                     {
+                                    command = new SqlCommand("select PartWesteID from Part where ID='" + sourcePartID + "'", connection);
 
-                                            var tempPartWasteID = command.ExecuteScalar();
+                                    var tempPartWasteID = command.ExecuteScalar();
                                             ////آیا کد کالای ضایعاتی در دیتابیس وجود دارد
-                                            if (tempPartWasteID != null)
+                                            if (tempPartWasteID.ToString() != null  )
                                             {
                                                 partWasteID = (long)tempPartWasteID;
                                             }
+                                            
 
-                                        }
+                                    }
                                     
                                     if (partWasteID == 0)
                                     {
@@ -335,16 +338,17 @@ namespace testpanel
                                     int Result = 1;
                                     if (destinationOrderCode == 0)
                                     {
-                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,IP,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + ",'" + ListIP.Items[CounterList - 1].ToString() + "'," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        Result = command.ExecuteNonQuery();
                                     }
                                     else
                                     {
                                         //with Destination Code
                                         //command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,ToOrderCodeID,ToPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + destinationOrderCode + "," + destinationPartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
 
-                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,ToOrderCodeID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1 + "," + destinationOrderCode + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,IP,ToOrderCodeID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 0 + "," + amount + "," + amount1+ ",'" + ListIP.Items[CounterList - 1].ToString() + "'," + destinationOrderCode + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
                                         Result1 = command.ExecuteNonQuery();
-                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,FromOrderCodeID,FromPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + destinationOrderCode + "," + destinationProductionLineID + "," + sourcePartID + "," + "10006" + "," + 0 + "," + 0 + "," + amount + "," + amount1 + "," + sourceOrderCode + "," + sourcePartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,OperatorID,IO,Waste,Amount,Amount1,IP,FromOrderCodeID,FromPartID,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + destinationOrderCode + "," + destinationProductionLineID + "," + sourcePartID + "," + "10006" + "," + 0 + "," + 0 + "," + amount + "," + amount1 + ",'" + ListIP.Items[CounterList - 1].ToString() + "'," + sourceOrderCode + "," + sourcePartID + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
                                         Result = command.ExecuteNonQuery();
                                     }
                                         
@@ -361,7 +365,7 @@ namespace testpanel
                                 }
                                 else if (kindHMI[0] >= 2 & kindHMI[0] <= 49 & tempProductiveDetails == null)
                                 {
-                                    command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,FromPartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + partWasteID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 1 + "," + amount + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                    command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,ProductionLineID,PartID,FromPartID,OperatorID,IO,Waste,Amount,IP,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + ProductionLineID + "," + partWasteID + "," + sourcePartID + "," + "10006" + "," + 1 + "," + 1 + "," + amount + ",'" + ListIP.Items[CounterList - 1].ToString() + "'," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
 
                                     int Result = command.ExecuteNonQuery();
 
@@ -397,11 +401,11 @@ namespace testpanel
 
                                     if (kindHMI[0] < 100)
                                     {
-                                        command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[StartTime],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + sourceOrderCode + "," + "10006" + ",'" + dateTime + "'," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[StartTime],[IP],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + sourceOrderCode + "," + "10006" + ",'" + dateTime + "'," + ",'" + ListIP.Items[CounterList - 1].ToString() + "'," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
                                     }
                                     else
                                     {
-                                        command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[EndTime],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + sourceOrderCode + "," + "10006" + ",'" + dateTime + "'," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                        command = new SqlCommand("INSERT INTO [dbo].[ProductiveStoppages] ([StoppagesID],[OrderCodeID],[OperatorID],[EndTime],[IP],[State],[Creator],[AddDate],[LastModifier],[LastModificationDate]) VALUES(" + StoppagesID + "," + sourceOrderCode + "," + "10006" + ",'" + dateTime + "'," + ",'" + ListIP.Items[CounterList - 1].ToString() + "'," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
                                     }
                                     int Result = command.ExecuteNonQuery();
 
@@ -415,10 +419,11 @@ namespace testpanel
                                     }
 
                                 }
-                                else if (kindHMI[0] == 101 & tempProductiveDetails == null)
+                                /////برگشت از سفارش
+                                else if ((kindHMI[0] == 101 || kindHMI[0] == 150) & tempProductiveDetails == null)
                                 {
 
-                                    command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + sourcePartID + "," + "10006" + "," + 0 + "," + 0 + "," + amount * (-1) + "," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
+                                    command = new SqlCommand("insert into ProductiveDetails (OrderCodeID,PartID,OperatorID,IO,Waste,Amount,Amount1,ip,State,Creator,AddDate,LastModifier,LastModificationDate) VALUES (" + sourceOrderCode + "," + sourcePartID + "," + "10006" + "," + 0 + "," + 0 + "," + amount * (-1) + "," + amount1 * (-1) + ",'" + ListIP.Items[CounterList - 1].ToString() + "'," + 1 + ",'" + Creator + "','" + dateTime + "','" + modifier + "','" + dateTime + "')", connection);
 
                                     int Result = command.ExecuteNonQuery();
 
@@ -447,11 +452,11 @@ namespace testpanel
 
                                 SuccessInsert = SuccessInsert + 1;
                                 lblRead.Text = SuccessInsert.ToString();
-
-                                /*Reply From SQL Sever
+                                
+                             /* Reply From SQL Sever
                                 Status=0 Unable to Saved to SQL Server
-                                Status=1 Save to SQL 
-                                Status=2 Error in Data*/
+                                Status=1 Save to SQL
+                                Status=2 Error in Data */
                                 svimaster.WriteSingleRegister(113, status);
                                 checkbit[0] = false;
                                 ///}
@@ -572,7 +577,7 @@ namespace testpanel
 
                         ////ارسال کد کالاهای سفارش مبدا در صورت تغییر در سفارش پنل 
 
-                        bool[] ChangeOrderCodeSource = svimaster.ReadCoils(4, 1);//تغییری در کد سفارش اتفاق افتاده است یا خیر : خیر=0
+                         bool[] ChangeOrderCodeSource = svimaster.ReadCoils(4, 1);//تغییری در کد سفارش اتفاق افتاده است یا خیر : خیر=0
 
                             if (ChangeOrderCodeSource[0] == true)
                             {
